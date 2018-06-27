@@ -650,6 +650,12 @@ var text_es = {
   NOM_CONTRATISTA: "NOMBRE CONTRATISTA",
   NUMERO_CONTRATO:"NUMERO CONTRATO",
   RP:"RP",
+
+  //cargar soportes plan de trabajo
+  TITULO_CARGAR_SOPORTES: "CARGA SOPORTES DOCENTE",
+  ACTIVIDAD: "ACTIVIDADES DEL PLAN DE TRABAJO",
+  SEMESTRE: "SEMESTRE",
+  PARRA_VER_SOP_PLAN: "A continuación se listan los soportes asociados a las actividades del plan de trabajo",
 };
 
 var text_en = {
@@ -1051,6 +1057,7 @@ var text_en = {
   NOM_CONTRATISTA: "NOMBRE CONTRATISTA",
   NUMERO_CONTRATO:"CONTRACT NUMBER",
   RP:"RP"
+
 };
 
 angular.module('contractualClienteApp')

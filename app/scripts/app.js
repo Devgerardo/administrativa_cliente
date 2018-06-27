@@ -266,6 +266,16 @@ angular
               controller: 'AprobacionOrdenadorCtrl',
               controllerAs: 'aprobacionOrdenador'
             })
+            .when('/seguimientoycontrol/plan_trabajo_docente/carga_documentos_docente', {
+              templateUrl: 'views/seguimientoycontrol/plan_trabajo_docente/carga_documentos_docente.html',
+              controller: 'SeguimientoycontrolPlanTrabajoDocenteCargaDocumentosDocenteCtrl',
+              controllerAs: 'planTrabajoDocenteCargaDocumentos'
+            })
+            .when('/seguimientoycontrol/plan_trabajo_docente/aprobacion_coordinador_plan_trabajo', {
+              templateUrl: 'views/seguimientoycontrol/plan_trabajo_docente/aprobacion_coordinador_plan_trabajo.html',
+              controller: 'SeguimientoycontrolPlanTrabajoDocenteAprobacionCoordinadorPlanTrabajoCtrl',
+              controllerAs: 'aprobacionCoordinadorPlanTrabajo'
+            })
             .otherwise({
                 redirectTo: '/'
             });

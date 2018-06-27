@@ -8,7 +8,6 @@
     "angular-cookies": "^1.6.10",
     "angular-resource": "^1.6.10",
     "angular-route": "^1.6.10",
-    "angular-sanitize": "^1.6.10",
     "angular-touch": "^1.6.10",
     "angular-ui-grid": "*",
     "AngularJS-OAuth2": "angularjs-oauth2#^1.2.1",

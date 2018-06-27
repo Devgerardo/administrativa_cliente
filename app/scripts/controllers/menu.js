@@ -158,24 +158,14 @@ angular.module('contractualClienteApp')
         $scope.perfil = "ADMINISTRADOR ARGO";
 
         if(token_service.live_token()){
-            var roles="";
-            if ( typeof token_service.token.role === "object" ) {
-              var rl = [];
-              for (var index = 0; index < token_service.token.role.length; index++) {
-                if (token_service.token.role[index].indexOf("/") < 0 ){
-                  rl.push(token_service.token.role[index]);
-                }
-              }
-              roles = rl.toString();
-            } else {
-              roles = token_service.token.role;
-            }
-
-            roles = roles.replace(/,/g, '%2C');
+            token_service.token.role.pop();
+            var roles = token_service.token.role.toString();
+            //var e_roles = roles.replace(',', '%2C');
             configuracionRequest.get('menu_opcion_padre/ArbolMenus/' + roles + '/Argo', '').then(function(response) {
-
+               
                 $rootScope.my_menu = response.data;
-
+                /*configuracionRequest.update_menu(https://10.20.0.162:9443/store/apis/authenticate response.data);
+                $scope.menu_service = configuracionRequest.get_menu();*/
             });
         }
         /*
