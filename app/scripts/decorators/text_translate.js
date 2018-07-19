@@ -656,6 +656,8 @@ var text_es = {
   ACTIVIDAD: "ACTIVIDADES DEL PLAN DE TRABAJO",
   SEMESTRE: "SEMESTRE",
   PARRA_VER_SOP_PLAN: "A continuación se listan los soportes asociados a las actividades del plan de trabajo",
+  CONSULTAR_ACT: "CONSULTAR ACTIVIDADES",
+  SUBIR_DOCUMETO: "SUBIR DOCUMENTO",
 };
 
 var text_en = {

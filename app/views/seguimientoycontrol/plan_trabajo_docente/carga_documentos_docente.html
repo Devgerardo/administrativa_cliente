@@ -1,21 +1,30 @@
 <br>
 <div class="panel panel-default">
-  <div class="panel panel-primary panel-body">
-    <!--Cabecera del panel-->
+  <loading load="planTrabajoDocenteCargaDocumentos.cargando" tam="4"></loading>
+  <div class="panel panel-primary panel-body" ng-if="!planTrabajoDocenteCargaDocumentos.cargando">
+     <!--Cabecera del panel-->
+     
     <h2 class="page-header text-center">{{'TITULO_CARGAR_SOPORTES' | translate}}</h2>
-
+    <h3 class="text-center">Seleccione el periodo a consultar</h3>
+    <div class="col-md-2 col-md-offset-5">
+      <select  ng-model="periodo" class="form-control">
+        <option ng-repeat="periodo in planTrabajoDocenteCargaDocumentos.periodos" ng-value="periodo">{{periodo.nombre}} </option>
+      </select>
+    </div>
+    
+    <button class="btn btn-success" ng-click="planTrabajoDocenteCargaDocumentos.cargarActividades(semestre)">{{'CONSULTAR_ACT' | translate}}</button>
+    <br>
     <div class="panel-body">
       <div class="row">
         <div class="panel panel-default col-lg-10 col-lg-offset-1">
           <div class="panel-body">
 
-
             <div class="row">
-              <div ui-grid="planTrabajoDocenteCargaDocumentos.gridOptions1" align='center' ui-grid-selection ui-grid-auto-resize></div>
+              <div ui-grid="planTrabajoDocenteCargaDocumentos.gridOptions1" class="mi-grid" id="mi-grid" ui-grid-selection ui-grid-auto-resize></div>
             </div>
             <br>
             <!-- div que se muestra cuando se selecciona una fila para anadir el soporte y muestra los tipos de adjuntos que el usuario puede hacer -->
-            <div class="col-md-12" ng-if="planTrabajoDocenteCargaDocumentos.seleccionado">
+            <div class="col-md-12" ng-if="true">
               <p>{{'DESC_ADJ' | translate}}</p>
               <!--Campo que pinta la opción archivo-->
               <fieldset class="form-group">
@@ -28,22 +37,16 @@
 
               <!--Div que se visualiza al seleccionar el check archivo-->
               <div ng-if="planTrabajoDocenteCargaDocumentos.archivo">
-
                 <div class="col-md-1">
                   <label class="control-label">{{'ARC' | translate}}</label>
                 </div>
                 <br>
-                <form name="formDocumento" ng-submit="planTrabajoDocenteCargaDocumentos.subirDocumento()">
-                  <input name="inputArchivo" type="file" angular-bfi="{'showUpload':false, allowedFileExtensions:['pdf'], language:'es'}" file-model="planTrabajoDocenteCargaDocumentos.fileModel"
-                    ng-model="form.botonCarga" required>
-
-                  <!-- <input name="myInput" ng-model="myInput" required> -->
-                  <div ng-if="formDocumento.inputArchivo.$valid && !formDocumento.inputArchivo.$pristine">
-                    <input type="submit" value="{{'SUBIR_DOCUMETO' | translate}}" class="btn btn-success">
+                <form name="myForm" >
+                  <input class="file" id="userUpload" name="userUpload" ng-model="userUpload" archivo-valido type="file" angular-bfi="{'showUpload':false, allowedFileExtensions:['pdf'], language:'es', maxFileSize: 2000}" file-model="planTrabajoDocenteCargaDocumentos.fileModel" required/>
+                  <div ng-if="myForm.$valid">
+                      <input type="submit" value="{{'SUBIR_DOCUMETO' | translate}}" class="btn btn-success">
                   </div>
-                  <h1>estado: {{formDocumento.$valid}}</h1>
                 </form>
-
               </div>
 
               <!--Div que se visualiza al seleccionar el check link-->
@@ -55,11 +58,11 @@
                   <div class="col-md-2">
                     <input type="text" class="form-control" ng-model="planTrabajoDocenteCargaDocumentos.enlace" required>
                   </div>
-
                 </div>
               </div>
 
               <br>
+              
               <div class="row">
                 <div class="col-md-3">
                   <label for="observacion" class="col-form-label">{{'OBSER' | translate}}</label>
@@ -68,13 +71,8 @@
                   <textarea rows="3" cols="50" ng-model="planTrabajoDocenteCargaDocumentos.observaciones"></textarea>
                 </div>
               </div>
+
             </div>
-
-            <button ng-if="planTrabajoDocenteCargaDocumentos.seleccionado" ng-show="planTrabajoDocenteCargaDocumentos.mostrar_boton"
-              class="btn btn-success" ng-click="planTrabajoDocenteCargaDocumentos.subir_documento()">
-              {{'CAR_SOP' | translate }}
-            </button>
-
           </div>
         </div>
 
@@ -83,11 +81,4 @@
     </div>
   </div>
 
-  <!-- <form name="formDocumento" ng-submit="planTrabajoDocenteCargaDocumentos.subirDocumento()" >
-                  <input type="file" angular-bfi="{'showUpload':false, allowedFileExtensions:['pdf'], language:'es'}" file-model="planTrabajoDocenteCargaDocumentos.fileModel" required> 
-                  <div ng-if="formDocumento.$valid">
-                      <input  type="submit" value="{{'SUBIR_DOCUMETO' | translate}}" class="btn btn-success">
-                  </div>
-              </form> -->
-
-</div>
+ </div>

@@ -302,10 +302,8 @@ angular.module('contractualClienteApp')
       }//else
           //    });
     });
-
-
-
   };
+
 
   /*
     Función para consultar los datos del docente y los contratos asociados a este
@@ -776,7 +774,6 @@ angular.module('contractualClienteApp')
   self.visualizar_enlace = function (url){
     $window.open(url);
   };
-
   
   /*
     Función para "borrar" un documento
@@ -943,7 +940,7 @@ angular.module('contractualClienteApp')
           administrativaRequest.put('pago_mensual', solicitud.Id, solicitud).
           then(function(response){
             swal(
-               $translate.instant('SOLICITUD_ENVIADA'),
+              $translate.instant('SOLICITUD_ENVIADA'),
               $translate.instant('SOLICITUD_EN_ESPERA'),
               'success'
             )

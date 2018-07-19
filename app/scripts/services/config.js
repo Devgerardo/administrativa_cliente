@@ -124,7 +124,7 @@ var conf_pruebas = {
 var conf_local = {
     WSO2_SERVICE: "http://jbpm.udistritaloas.edu.co:8280/services",
     ACADEMICA_SERVICE: "http://10.20.0.127/urano/index.php?data=B-7djBQWvIdLAEEycbH1n6e-3dACi5eLUOb63vMYhGq0kPBs7NGLYWFCL0RSTCu1yTlE5hH854MOgmjuVfPWyvdpaJDUOyByX-ksEPFIrrQQ7t1p4BkZcBuGD2cgJXeD",
-    ACADEMICA_WSO_SERVICE: "https://jbpm.udistritaloas.edu.co:8243/services/academicaProxy/",
+    ACADEMICA_WSO_SERVICE: "http://jbpm.udistritaloas.edu.co:8280/services/academicaProxy/",
     ADMINISTRATIVA_MID_SERVICE: "http://10.20.0.254/administrativa_mid_api/v1/",
     ADMINISTRATIVA_SERVICE: "http://localhost:8085/v1/",
     ADMINISTRATIVA_PRUEBAS_SERVICE: "http://localhost:8084/v1/",
@@ -144,6 +144,7 @@ var conf_local = {
     CONTRATO_SERVICE: "http://jbpm.udistritaloas.edu.co:8280/services/contratoSuscritoProxyService/",
     NUXEO_SERVICE: "https://documental.udistrital.edu.co/nuxeo/",
     HOMOLOGACION_SERVICE:"https://autenticacion.udistrital.edu.co:8244/dependencias_api/v1/",
+    ACADEMICA_PRUEBAS_SERVICE: "https://jbpm.udistritaloas.edu.co:8243/services/academicaProxy/consulta_plan_trabajo/",
     TOKEN: {
         AUTORIZATION_URL: "https://autenticacion.udistrital.edu.co/oauth2/authorize",
         URL_USER_INFO: "https://autenticacion.udistrital.edu.co/oauth2/userinfo",
