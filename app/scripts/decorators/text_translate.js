@@ -658,6 +658,7 @@ var text_es = {
   PARRA_VER_SOP_PLAN: "A continuación se listan los soportes asociados a las actividades del plan de trabajo",
   CONSULTAR_ACT: "CONSULTAR ACTIVIDADES",
   SUBIR_DOCUMETO: "SUBIR DOCUMENTO",
+  TITULO_REV_DECANO:"REVISION DECANO"
 };
 
 var text_en = {

@@ -9,7 +9,7 @@
  */
 angular.module('contractualClienteApp')
 
-  .controller('SeguimientoycontrolPlanTrabajoDocenteCargaDocumentosDocenteCtrl', function ($scope, $http, $translate, uiGridConstants, contratoRequest, administrativaRequest, nuxeo, $q, coreRequest, $window, $sce, adminMidRequest, $routeParams, academicaWsoService) {
+  .controller('SeguimientoycontrolPlanTrabajoDocenteCargaDocumentosDocenteCtrl', function ($scope, $http, $translate, uiGridConstants, administrativaRequest, nuxeoClient, $q, coreRequest, $window, $sce, academicaWsoService, $interval, $timeout, planTrabajoService) {
     //Variable de template que permite la edición de las filas de acuerdo a la condición ng-if
     var tmpl = '<div ng-if="!row.entity.editable">{{COL_FIELD}}</div><div ng-if="row.entity.editable"><input ng-model="MODEL_COL_FIELD"</div>';
 
@@ -23,10 +23,24 @@ angular.module('contractualClienteApp')
     //Se utiliza la variable self estandarizada
     var self = this;
     self.mostrar_boton = true;
-    
-    
-    //self.actividades = [];
-   
+    self.cargando = false;
+    self.cargandoDocumentos = false;
+    self.index = -1;
+    self.indexTemp = -1;
+    self.observacionesDoc;
+    self.observacionesDocTemp;
+  
+
+    self.Documento = 93401747;
+    self.dependencias = [];
+    self.anio;
+    self.periodo;
+    self.pasoCadena = 0;
+    //self.documentos = [];
+
+    self.limpiarArchivo = $scope.limpiarArchivo;
+
+
     //self.Documento = $routeParams.docid; 
 
     /*
@@ -34,32 +48,41 @@ angular.module('contractualClienteApp')
     */
     self.gridOptions1 = {
       enableRowSelection: true,
-      enableFullRowSelection: false,
+      enableFullRowSelection: true,
       multiSelect: false,
       noUnselect: true,
+      //saveSelection: true,
 
       enableSorting: false,
       enableFiltering: false,
       resizable: true,
       enableColumnMenus: false,
-
+      enableHorizontalScrollbar: 2,
+      enableVerticalScrollbar: 2,
       columnDefs: [{
         name: 'actividad',
-        displayName: $translate.instant('ACTIVIDAD'),
-      
+        displayName: $translate.instant('ACTIVIDAD')
+
+      },
+      {
+        name: 'cod_proyecto',
+        displayName: 'IdProyecto',
+        visible: false
+      },
+      {
+        name: 'cod_actividad',
+        visible: false
       },
       {
         field: 'Acciones',
         displayName: $translate.instant('ACC'),
-        cellTemplate: 
-        '<a type="button" title="Ver soportes" type="button" class="fa fa-eye fa-lg  faa-shake animated-hover"' +
-          'ng-click="grid.appScope.planTrabajoDocenteCargaDocumentos.obtener_doc(row.entity.PagoMensual)" data-toggle="modal" data-target="#modal_ver_soportes"</a>&nbsp'+
-        ' <a type="button" title="Enviar Solicitud" type="button" class="fa fa-upload fa-lg  faa-shake animated-hover" ng-click="grid.appScope.cargaDocumentosDocente.cargar_soportes(row.entity); grid.appScope.cargaDocumentosDocente.solicitar_pago(row.entity);"  data-toggle="modal" data-target="#modal_check_docente">',
-      width: '10%',
+        cellTemplate:
+          ' <a type="button" title="Ver solicitudResp" class="fa fa-eye fa-lg  faa-shake animated-hover" ng-click="grid.appScope.dimensionarGrilla(); grid.appScope.cargarsolicitudSoporte(row.entity)"  data-toggle="modal" data-target="#modal_ver_solicitud_actividad"></a>',
+        // ' <a type="button" title="Ver solicitudResp" class="fa fa-eye fa-lg  faa-shake animated-hover" ng-click="grid.appScope.dimensionarGrilla()"  data-toggle="modal" data-target="#modal_ver_solicitudResp_actividad"></a>',
+        width: '10%',
       }
       ]
     };
-
 
 
     /*
@@ -73,22 +96,110 @@ angular.module('contractualClienteApp')
         self.seleccionado = row.isSelected;
         //Condicional para capturar la información de la fila seleccionado
         if (self.seleccionado) {
-          self.fila_seleccionada = row.entity;
-          //console.log(self.fila_seleccionada.Actividad);
+          self.filaActividad = row.entity;
         }
       });
     };
-    
-    /*
-      Funcion para cargas los periodos que el docente puede elegir
-    */
+
+    self.gridOptions1.appScopeProvider = self;
+
+    self.gridOptions2 = {
+      enableRowSelection: true,
+      enableFullRowSelection: true,
+      multiSelect: false,
+      noUnselect: true,
+      enableSorting: true,
+      enableFiltering: false,
+      resizable: true,
+      enableColumnMenus: false,
+      enableHorizontalScrollbar: 2,
+      enableVerticalScrollbar: 2,
+
+      columnDefs: [{
+        name: 'fechaCreacion',//debe llamarse tal cual se llame el campo en el response
+        displayName: $translate.instant('SOPORTE'),
+      },
+      {
+        name: 'estado',
+        displayName: $translate.instant('ESTADO'),
+      },
+      {
+        name: 'codEstado',
+        visible: false
+      },
+      {
+        field: 'Acciones',
+        displayName: $translate.instant('ACC'),
+        cellTemplate:
+          '<a type="button" title="Ver soportes" type="button" class="fa fa-folder fa-lg"' +
+          'ng-click="grid.appScope.planTrabajoDocenteCargaDocumentos.setRow(row.entity); grid.appScope.planTrabajoDocenteCargaDocumentos.traerArchivoNuxeo()" data-toggle="modal" data-target="#modal_ver_soportes"</a>&nbsp' +
+          '<a type="button" title="Enviar solicitudResp" ng-if="row.entity.codEstado===1" class="fa fa-send-o fa-lg faa-shake animated-hover" ng-click="grid.appScope.planTrabajoDocenteCargaDocumentos.setRow(row.entity);  grid.appScope.planTrabajoDocenteCargaDocumentos.enviar_solicitudResp_soporte()"></a>&nbsp' +
+          '<a type="button" title="Borrar documento" ng-if="row.entity.codEstado===1" class="fa fa-trash-o fa-lg faa-shake animated-hover" ng-click="grid.appScope.planTrabajoDocenteCargaDocumentos.setRow(row.entity); grid.appScope.planTrabajoDocenteCargaDocumentos.borrar_doc()"></a>',
+        width: "10%",
+      }
+      ]
+    };
+
+    self.gridOptions2.onRegisterApi = function (gridApi) {
+      self.gridApi2 = gridApi;
+
+      self.seleccionados = self.gridApi2.selection.selectedCount;
+      self.gridApi2.selection.on.rowSelectionChanged($scope, function (row) {
+        //Contiene la info del elemento seleccionado
+        self.seleccionado = row.isSelected;
+        //Condicional para capturar la información de la fila seleccionado
+        if (self.seleccionado) {
+          self.fila_seleccionada = row.entity;
+        }
+      });
+      self.gridApi2.core.refresh();
+    };
+
+    self.dimensionarGrilla = function (parametro) {
+      //console.log("dimensionar");
+      self.cargandoDocumentos = true;
+      $interval(function () {
+        self.gridApi1.core.handleWindowResize();
+      }, 500, 10);
+      $timeout(function () {
+        self.cargandoDocumentos = false;
+      }, 2000); // 3
+    };
+
+    self.setRow = function (fila) {
+      self.fila_seleccionada = fila;
+      self.setIndex();
+    };
+
+    self.setIndex = function () {
+      self.index = self.gridOptions2.data.indexOf(self.fila_seleccionada);
+      self.observacionesDoc = self.documentos[self.index].observaciones;
+    }
+
+    self.cambiarObservaciones = function () {
+      if (self.checkObservaciones) {
+        self.observacionesDoc = self.documentos[self.index].observacionesSupervisor;
+      } else {
+        self.observacionesDoc = self.documentos[self.index].observaciones;
+      }
+    }
+
+
+
+    /**
+     * @ngdoc method
+     * @name cargarPeriodos
+     * @methodOf 
+     * @description
+     * Funcion para cargar los periodos que el docente puede elegir
+     */
     self.cargarPeriodos = function () {
-      self.cargando = false;
+      self.cargando = true;
       academicaWsoService.get('periodos', "")
         .then(function (responsePeriodos) {
           self.periodosTemp = responsePeriodos.data.periodosCollection.datosPeriodos;
           self.periodos = self.periodosTemp.filter(function (objPeriodo) {
-            return (objPeriodo.anio >= 2018 || (objPeriodo.anio == 2017 && objPeriodo.periodo!=1));
+            return (objPeriodo.anio >= 2018 || (objPeriodo.anio == 2017 && objPeriodo.periodo != 1));
           });
 
           angular.forEach(self.periodos, function (periodo) {
@@ -97,235 +208,141 @@ angular.module('contractualClienteApp')
           self.cargando = false;
         })
         .catch(function (error) {
-          console.log(error)
+          swal(
+            'Error',
+            "No se pudo cargar los periodos",
+            'warning'
+          );
         });
     }
 
     self.cargarPeriodos();
 
-    /*
-    Función para cargar la información del plan de trabajo docente en un semestre
+    /**
+    * @ngdoc method
+    * @name cargarActividades
+    * @methodOf 
+    * @description
+    * Función que con la cedula del docente y el semestre busca en la base de datos las actividades que este
+    * tiene asociadas y con ellas llena un ui-grid, en caso de no encontrars actividades se muestra una alerta.
     */
-    self.cargarActividades = function (semestre) {
-      self.cargando = true;
-      if (semestre != null && semestre != undefined)
-        //self.gridOptions1.data =[];
-        var semestre = semestre.replace('-', '/');
-      console.log(semestre);
-      // academicaWsoService.get('consulta_plan_trabajo', "93401747/"+semestre)
-      academicaWsoService.get('consulta_plan_trabajo', "93401747/2017/3")
-        .then(function (response) {
-          console.log("filas: " + self.gridOptions1.data.length);
-          console.log("response.data", response.data);
-          console.log("response.data.planCollection", response.data.planCollection);
-          console.log("response.data.planCollection.plan", response.data.planCollection.plan);
-          console.log(response.data.planCollection.plan);
-          self.actividades = response.data.planCollection.plan;
-          self.gridOptions1.data = self.actividades;
-          self.cargando = false;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    };
+    self.cargarActividades = function () {
 
-    /*
-      Función para consultar los datos del docente y los contratos asociados a este
-    */
-    self.obtener_informacion_coordinador = function (IdDependencia) {
-      adminMidRequest.get('aprobacion_pago/informacion_coordinador/' + IdDependencia)
-        .then(function (response) {
-          self.informacion = response.data;
-          self.informacion_coordinador = self.informacion.carreraSniesCollection.carreraSnies[0];
-        })
-    };
+      if (self.periodoSeleccionado != null && self.periodoSeleccionado != undefined) {
+        var semestre = self.periodoSeleccionado.replace('-', '/');
+        var arregloPeriodo = semestre.split("/");
+        self.anio = arregloPeriodo[0];
+        self.periodo = arregloPeriodo[1];
 
-
-    self.subirDocumento = function () {
-      var nombre = "documentoPrueba";
-      var descripcion = "descripcion prueba";
-      console.log("filemodel", self.fileModel)
-      self.cargarDocumento(nombre, descripcion, self.fileModel)
-        .then(function (url) {
-          console.log(url);
-          self.getDocumento(url);
-        }).catch(function (error) {
-          console.log(error);
-        })
-    }
-
-    self.getDocumento = function (docid) {
-      nuxeo.header('X-NXDocumentProperties', '*');
-
-      nuxeo.request('/id/' + docid)
-        .get()
-        .then(function (response) {
-          self.doc = response;
-          //var aux = response.get('file:content');
-          self.doc.fetchBlob()
-            .then(function (res) {
-              self.blob = res;
-              var fileURL = URL.createObjectURL(self.blob);
-              //console.log(fileURL);
-              self.content = $sce.trustAsResourceUrl(fileURL);
-              $window.open(fileURL);
-
-            })
-            .catch(function (error) {
-              defer.reject(error)
-            });
-        })
-        .catch(function (error) {
-          defer.reject(error)
-        });
-    }
-
-    self.enviar_solicitud = function () {
-      self.mostrar_boton = false;
-
-      if (self.mes !== undefined && self.anio !== undefined) {
-
-
-        //Petición para obtener id de estado pago mensual
-        administrativaRequest.get("estado_pago_mensual", $.param({
-          query: "CodigoAbreviacion:CD",
-          limit: 0
-        })).then(function (response) {
-          //Variable que contiene el Id del estado pago mensual
-          var id_estado = response.data[0].Id;
-          //Se arma elemento JSON para la solicitud
-          var pago_mensual = {
-            CargoResponsable: "DOCENTE",
-            EstadoPagoMensual: { Id: id_estado },
-            Mes: self.mes,
-            Ano: self.anio,
-            NumeroContrato: self.contrato.NumeroVinculacion,
-            Persona: self.Documento,
-            Responsable: self.Documento,
-            VigenciaContrato: parseInt(self.contrato.Vigencia)
-          };
-
-
-          administrativaRequest.get("pago_mensual", $.param({
-            query: "NumeroContrato:" + self.contrato.NumeroVinculacion +
-              ",VigenciaContrato:" + self.contrato.Vigencia +
-              ",Mes:" + self.mes +
-              ",Ano:" + self.anio,
-            limit: 0
-          })).then(function (response) {
-
-            if (response.data == null) {
-
-              administrativaRequest.post("pago_mensual", pago_mensual).then(function (response) {
-                swal(
-                  $translate.instant('SOLICITUD_REGISTRADA'),
-                  $translate.instant('CARGUE_CORRESPONDIENTE'),
-                  'success'
-                )
-
-                self.cargar_soportes(self.contrato);
-
-
-                self.gridApi2.core.refresh();
-
-                //   self.contrato = {};
-                self.mes = {};
-                self.anio = {};
-                self.mostrar_boton = true;
-
+        self.cargando = true;
+        academicaWsoService.get('consulta_plan_trabajo', "79396653/" + semestre)
+          //academicaWsoService.get('consulta_plan_trabajo', "93401747/2017/3")
+          .then(function (response) {
+            if (response.data.planCollection.plan != null && response.data.planCollection.plan != undefined) {
+              self.actividades = response.data.planCollection.plan;
+              self.gridOptions1.data = self.actividades;
+              self.cargando = false;
+              //delete self.seleccionado;
+              self.actividades.forEach(function (actividad) {
+                if (actividad.cod_proyecto !== '0' && !self.dependencias.includes(actividad.cod_proyecto)) {
+                  self.dependencias.push(actividad.cod_proyecto);
+                }
               });
-
+              console.log(self.dependencias);
             } else {
-
               swal(
                 'Error',
-                $translate.instant('YA_EXISTE'),
-                'error'
+                "No se encontraron actividades asociadas al docente",
+                'warning'
               );
-
-              self.mostrar_boton = true;
             }
-
+            self.cargando = false;
+          })
+          .catch(function (error) {
+            swal(
+              'Error',
+              "No se pudo cargar las actividades",
+              'warning'
+            );
           });
-
-        });
-      } else {
-        swal(
-          'Error',
-          $translate.instant('DEBE_SELECCIONAR'),
-          'error'
-        );
-        self.mostrar_boton = true;
       }
-
     };
 
-    /*
-      Función para cargar los documentos a la carpeta destino
+    /**
+    * @ngdoc function
+    * @name crear_solicitudResp_soporte
+    * @description
+    * Método que implementa la logica necesaria para hacer las solicitudRespes de revision por cada una de las
+    * organizaciones a las que corresponde la actividad
+    *
+    * 
     */
-    self.cargarDocumento = function (nombre, descripcion, documento) {
-      var defered = $q.defer();
-      var promise = defered.promise;
+    self.crearsolicitudResp = function () {
 
-      console.log("documento", documento);
+      self.organizacion = [];
 
-      nuxeo.operation('Document.Create')
-        .params({
-          type: 'File',
-          name: nombre,
-          properties: 'dc:title=' + nombre + ' \ndc:description=' + descripcion
-        })
-        .input('/default-domain/workspaces/Pruebas Administrativa/plan_trabajo_docente')
-        .execute()
-        .then(function (doc) {
-          var nuxeoBlob = new Nuxeo.Blob({
-            content: documento
-          });
-          nuxeo.batchUpload()
-            .upload(nuxeoBlob)
-            .then(function (res) {
-              return nuxeo.operation('Blob.AttachOnDocument')
-                .param('document', doc.uid)
-                .input(res.blob)
-                .execute();
-            })
-            .then(function () {
-              return nuxeo.repository().fetch(doc.uid, {
-                schemas: ['dublincore', 'file']
-              });
-            })
-            .then(function (doc) {
-              var url = doc.uid;
-              defered.resolve(url);
-            })
-            .catch(function (error) {
-              throw error;
-              defered.reject(error)
-            });
-        })
-        .catch(function (error) {
-          throw error;
-          defered.reject(error)
-        });
+      if (self.filaActividad.cod_proyecto !== '0') {
+        self.organizacion[0] = self.filaActividad.cod_proyecto;
+      } else {
+        self.organizacion = self.dependencias;
+      }
 
-      return promise;
+      for (let i = 0; i < self.organizacion.length; i++) {
+        var intTemp = + self.organizacion;
+        self.subir_documento(intTemp);
+      }
+
+      //$scope.limpiarArchivo();
+
     }
 
-    self.subir_documento = function () {
+    /*
+      Función que obtiene y muestra el contenido del archivo
+    */
+    self.traerArchivoNuxeo = function () {
 
-      var nombre_doc = self.contrato.Vigencia + self.contrato.NumeroVinculacion + self.Documento + self.fila_seleccionada.Mes + self.fila_seleccionada.Ano;
+      console.log("trear Archivo");
+      
+      if(self.documentos[self.index].tipo === "Archivo"){
 
+      if (self.indexTemp !== self.index) {
+        self.indexTemp = self.index;
+
+        nuxeoClient.getDocument(self.documentos[self.index].idNuxeo)
+          .then(function (archivoResp) {
+            
+            self.documentos[self.index].blobUrl = archivoResp.url;
+            self.abrir = true;
+          })
+          .catch(function (error) {
+            swal(
+              $translate.instant("ERROR"),
+              $translate.instant("ERROR.CARGAR_DOCUMENTO"),
+              'warning'
+            );
+          });
+        }
+      }
+    }
+
+    /*
+      Funcion que guarda los ids de los documentos en las tablas documento y solicitudResp_soporte_plan_trabajo de la base de datos
+    */
+    self.subir_documento = function (organizacion) {
+
+      var nombre_doc = self.Documento + self.filaActividad.actividad + self.anio + self.periodo;
+      var dominio = 'Pruebas Administrativa/plan_trabajo_docente';
 
       if (self.archivo) {
 
-        if (self.fileModel !== undefined && self.item !== undefined) {
-          self.mostrar_boton = false;
-          var descripcion = self.item.ItemInforme.Nombre;
-          var aux = self.cargarDocumento(nombre_doc, descripcion, self.fileModel, function (url) {
+        if (self.fileModel !== undefined) {
+
+          var descripcion = "soporte de la actividad: " + self.filaActividad.actividad;
+          var aux = nuxeoClient.createDocument(nombre_doc, descripcion, self.fileModel, dominio, function (url) {//revisar lo del parametro del callback, si la funcion falla no debería hacer nada
             //Objeto documento
             var date = new Date();
             date = moment(date).format('DD_MMM_YYYY_HH:mm:ss');
-            //var now = date
+
             self.objeto_documento = {
               "Nombre": nombre_doc,
               "Descripcion": descripcion,
@@ -345,38 +362,41 @@ angular.module('contractualClienteApp')
             //Post a la tabla documento del core
             coreRequest.post('documento', self.objeto_documento)
               .then(function (response) {
+                console.log(response);
                 self.id_documento = response.data.Id;
-
-                //Objeto soporte_pago_mensual
-                self.objeto_soporte = {
-                  "PagoMensual": {
-                    "Id": self.fila_seleccionada.Id
-                  },
-                  "Documento": self.id_documento,
-                  "ItemInformeTipoContrato": {
-                    "Id": self.item.Id
-                  },
-                  "Aprobado": false
-                };
-
-                //Post a la tabla soporte documento
-                administrativaRequest.post('soporte_pago_mensual', self.objeto_soporte)
-                  .then(function (response) {
-                    //Bandera de validacion
-                    swal(
-                      $translate.instant('DOCUMENTO_GUARDADO'),
-                      $translate.instant('DOCUMENTO_SE_HA_GUARDADO'),
-                      'success'
-                    );
-                    self.item = undefined;
-                    //angular.element("input[type='file']").val(null);
-                    self.fileModel = undefined;
-                    self.mostrar_boton = true;
-
-                  });
+                return self.id_documento;
+              })
+              .then(function (documentoResp) {
+                console.log(documentoResp);
+                self.objeto_solicitudResp = {
+                  "Estado": { "id": 1 },
+                  "Persona": self.Documento,
+                  //"Id":0,
+                  "Organizacion": Number(organizacion),
+                  "Documento": documentoResp,
+                  "Observaciones": "",
+                  "Anio": Number(self.anio),
+                  "Periodo": Number(self.periodo),
+                  "Actividad": Number(self.filaActividad.cod_actividad),
+                }
+                return planTrabajoService.post('solicitud_soporte_plan_trabajo', self.objeto_solicitudResp);
+              })
+              .then(function (solicitudResp) {
+                console.log(solicitudResp);
+                swal(
+                  $translate.instant('EL ARCHIVO HA SIDO GUARDADO'),
+                  'success'
+                );
+                self.userUpload = {};
+                self.observaciones = "";
+              })
+              .catch(function (error) {
+                swal(
+                  'Error',
+                  $translate.instant('El documento no pudo guardarse '),
+                  'error'
+                );
               });
-
-
           });
 
         } else {
@@ -392,10 +412,10 @@ angular.module('contractualClienteApp')
         }
         //
       } else if (self.link) {
-        if (self.enlace !== undefined && self.item !== undefined) {
-          self.mostrar_boton = false;
-
-          var descripcion = self.item.ItemInforme.Nombre;
+        if (self.enlace !== undefined) {
+          var descripcion = "soporte de la actividad: " + self.filaActividad.actividad;
+          var date = new Date();
+          date = moment(date).format('DD_MMM_YYYY_HH:mm:ss');
           //Objeto documento
           self.objeto_documento = {
             "Nombre": nombre_doc,
@@ -404,6 +424,7 @@ angular.module('contractualClienteApp')
               "Id": 3
             },
             "Contenido": JSON.stringify({
+              "FechaCreacion": date,
               "Tipo": "Enlace",
               "Enlace": self.enlace,
               "Observaciones": self.observaciones
@@ -414,132 +435,136 @@ angular.module('contractualClienteApp')
           coreRequest.post('documento', self.objeto_documento)
             .then(function (response) {
               self.id_documento = response.data.Id;
-
-              //Objeto soporte_pago_mensual
-              self.objeto_soporte = {
-                "PagoMensual": {
-                  "Id": self.fila_seleccionada.Id
-                },
-                "Documento": self.id_documento,
-                "ItemInformeTipoContrato": {
-                  "Id": self.item.Id
-                },
-                "Aprobado": false
-              };
-
-              //Post a la tabla soporte documento
-              administrativaRequest.post('soporte_pago_mensual', self.objeto_soporte)
-                .then(function (response) {
-                  //Bandera de validacion
-                  swal(
-                    $translate.instant('ENLACE_GUARDADO'),
-                    $translate.instant('ENLACE_SE_HA_GUARDADO'),
-                    'success'
-                  );
-                  self.enlace = undefined;
-                  self.item = undefined;
-                  self.mostrar_boton = true;
-
-                });
+              console.log("id documento: " + self.id_documento);
+              return self.id_documento;
+            })
+            .then(function (documento) {
+              self.objeto_solicitudResp = {
+                "Estado": { "id": 1 },
+                "Persona": self.Documento,
+                //"Id":0,
+                "Organizacion": Number(organizacion),
+                "Documento": documentoResp,
+                "Observaciones": "",
+                "Anio": Number(self.anio),
+                "Periodo": Number(self.periodo),
+                "Actividad": Number(self.filaActividad.cod_actividad),
+              }
+              return planTrabajoService.post('solicitud_soporte_plan_trabajo', self.objeto_solicitudResp);
+            })
+            .then(function () {
+              swal(
+                $translate.instant('EL ENLACE HA SIDO GUARDADO'),
+                'success'
+              );
+              self.enlace.value = "";
+            })
+            .catch(function (error) {
+              console.log("error " + error);
             });
-
         } else {
-
           swal(
             'Error',
             $translate.instant('DEBE_PEGAR_ENLACE'),
             'error'
           );
-
-          self.mostrar_boton = true;
-
         }
       }
       self.objeto_documento = {};
-
+      self.objeto_solicitudResp = {};
     };
 
     self.cambiarCheckArchivo = function () {
       if (self.archivo) {
-        self.link = false;
+        self.link = false;//ngmodel del checkbox
       }
     };
 
     self.cambiarCheckLink = function () {
       if (self.link) {
-        self.archivo = false;
+        self.archivo = false;//ngmodel del checkbox
       }
     };
 
-    /*
-      Función que permite obtener un documento de nuxeo por el Id
-    */
-    self.getDocumento = function (docid) {
-      nuxeo.header('X-NXDocumentProperties', '*');
+    /**
+     * @ngdoc function
+     * @name cargarsolicitudSoporte
+     * @description funcion que consulta en la base de datos las solicitud de revision
+     * de los soportes y lo documentos asociadas al docente para la actividad seleccionada
+     * en el periodo seleccionado
+     */
 
-      self.obtenerDoc = function () {
-        var defered = $q.defer();
+    //mejorar cadena!!
+    self.cargarsolicitudSoporte = function (row) {
 
-        nuxeo.request('/id/' + docid)
-          .get()
-          .then(function (response) {
-            self.doc = response;
-            var aux = response.get('file:content');
-            self.document = response;
-            defered.resolve(response);
-          })
-          .catch(function (error) {
-            defered.reject(error)
-          });
-        return defered.promise;
-      };
+      self.filaActividad = row;
+    
 
-      self.obtenerFetch = function (doc) {
-        var defered = $q.defer();
+      planTrabajoService.get("solicitud_soporte_plan_trabajo", $.param({
+        query: "persona:" + self.Documento + ",anio:" + self.anio + ",periodo:" + self.periodo
+          + ",actividad:" + self.filaActividad.cod_actividad,
+        limit: -1
+      }))
+        .then(function (solicitudResp) {
+          //console.log(solicitudResp);
+          self.documentos = [];
+          (async function () {
+            for (var i = 0; i < solicitudResp.data.length; i++) {
 
-        doc.fetchBlob()
-          .then(function (res) {
-            defered.resolve(res.blob());
+              var value = solicitudResp.data[i];
+              //console.log(value);
+              self.documentos[i] = {};
+              self.documentos[i].solicitud = solicitudResp.data[i];
+              self.documentos[i].idSolicitud = value.Id;
+              self.documentos[i].documento = value.Documento;
+              self.documentos[i].observacionesSupervisor = value.Observaciones;
+              self.documentos[i].estado = value.Estado.Nombre;
+              self.documentos[i].codEstado = value.Estado.Id;
 
-          })
-          .catch(function (error) {
-            defered.reject(error)
-          });
-        return defered.promise;
-      };
+              await coreRequest.get('documento', $.param({
+                query: "Id:" + self.documentos[i].documento
+              }))
+                .then(function (documentoResp) {
+                  documentoResp.data[0].Contenido = JSON.parse(documentoResp.data[0].Contenido);
 
-      self.obtenerDoc().then(function () {
+                  self.documentos[i].nombre = documentoResp.data[0].Nombre;
+                  //self.documentos[i].tipoDocumento = documentoResp.data[0].TipoDocumento; trae todo el registro de la tabla tipo documento no solo el id
+                  self.documentos[i].descripcion = documentoResp.data[0].Descripcion;
+                  self.documentos[i].fechaCreacion = documentoResp.data[0].Contenido.FechaCreacion;
+                  self.documentos[i].observaciones = documentoResp.data[0].Contenido.Observaciones;
+                  self.documentos[i].tipo = documentoResp.data[0].Contenido.Tipo;
+                  if (self.documentos[i].tipo === "Archivo") {
+                    self.documentos[i].idNuxeo = documentoResp.data[0].Contenido.IdNuxeo;
+                    self.documentos[i].nombreArchivo = documentoResp.data[0].Contenido.NombreArchivo;
 
-        self.obtenerFetch(self.document).then(function (r) {
-          self.blob = r;
-          var fileURL = URL.createObjectURL(self.blob);
-          self.content = $sce.trustAsResourceUrl(fileURL);
-          $window.open(fileURL, 'Soporte Cumplido', 'resizable=yes,status=no,location=no,toolbar=no,menubar=no,fullscreen=yes,scrollbars=yes,dependent=no,width=700,height=900');
+                  } else {
+                    self.documentos[i].enlace = documentoResp.data[0].Contenido.Enlace;
+                    self.documentos[i].nombreArchivo = "Enlace";
+                  }
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+            }
+          })()
+            .catch(function (error) {
+              console.log(error);
+            });
+
+          //console.log(self.documentos);
+          self.gridOptions2.data = self.documentos;
+        })
+        .catch(function (error) {
+          self.gridOptions2.data = {};
+          swal(
+            'Error',
+            //$translate.instant('DEBE_PEGAR_ENLACE'),
+            'No se encontraron soportes acosiados a esta actividad',
+            'error'
+          );
+          //console.log(error);
         });
-      });
-    };
-
-    /*
-     Función que obtiene los documentos relacionados a las solicitudes
-    */
-    self.obtener_doc = function (fila) {
-      self.fila_sol_pago = fila;
-      var nombre_docs = self.contrato.Vigencia + self.contrato.NumeroVinculacion + self.Documento + self.fila_sol_pago.Mes + self.fila_sol_pago.Ano;
-      coreRequest.get('documento', $.param({
-        query: "Nombre:" + nombre_docs + ",Activo:true",
-        limit: 0
-      })).then(function (response) {
-        self.documentos = response.data;
-        angular.forEach(self.documentos, function (value) {
-          self.descripcion_doc = value.Descripcion;
-          value.Contenido = JSON.parse(value.Contenido);
-
-          if (value.Contenido.Tipo === "Enlace") {
-            value.Contenido.NombreArchivo = value.Contenido.Tipo;
-          };
-        });
-      })
-    };
+    }
 
     /*
       Función para visualizar enlace
@@ -548,127 +573,76 @@ angular.module('contractualClienteApp')
       $window.open(url);
     };
 
-
     /*
       Función para "borrar" un documento
     */
     self.borrar_doc = function () {
-
-      var documento = self.doc;
-        swal({
-          title: '¿Está seguro(a) de eliminar el soporte?',
-          text: "No podrá revertir esta acción",
-          type: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          cancelButtonText: 'Cancelar',
-          confirmButtonText: 'Aceptar'
-        }).then(function () {
-      documento.Contenido = JSON.stringify(documento.Contenido)
-      documento.Activo = false;
-      coreRequest.delete('documento', documento.Id).
-        then(function (response) {
-          self.obtener_doc(self.fila_sol_pago);
+      var documento = {};
+      documento.id_documento = self.documentos[self.index].documento;
+      documento.id_nuxeo = self.documentos[self.index].idNuxeo;
+      documento.id_solicitud = self.documentos[self.index].idSsolicitud;
+      alert("eliminar: " + documento.id_documento + " " + documento.id_nuxeo);
+      //var documento = self.doc;
+      swal({
+        title: '¿Está seguro(a) de eliminar el soporte?',
+        text: "No podrá revertir esta acción",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Aceptar',
+        //closeOnClickOutside: false,
+        allowOutsideClick: false
+      })
+        .then(function () {
+          return planTrabajoService.delete('solicitud_soporte_plan_trabajo', self.documento.id_solicitud);
+        })
+        .then(function (solicitudEliminada) {
+          return coreRequest.delete('documento', documento.id_documento);
+        })
+        .then(function (docEliminado) {
+          console.log("eliminado de core " + docEliminado);
+          var dominio = 'Pruebas Administrativa/plan_trabajo_docente';
+          return nuxeoClient.deleteDocument(dominio, documento.idNuxeo);
+        })
+        .then(function () {
+          swal(
+            'DOCUMENTO ELIMINADO ',
+            'success'
+          );
+        })
+        .catch(function (error) {
+          console.log(error);
+          if (error !== 'cancel') {
+            swal(
+              'Error',
+              "No se pudo eliminar el documento",
+              'error'
+            );
+          }
         });
-      });
     }
+
+    //self.borrar_doc();
 
     self.set_doc = function (doc) {
       self.doc = doc;
     };
 
-    //Aqui empiezan las funciones que desactivan la funcionalidad de carga de documentos
-
-
-    self.enviar_solicitud_coordinador = function () {
-
-      self.mostrar_boton = false;
-
-      if (self.mes !== undefined && self.anio !== undefined) {
-
-
-        //Petición para obtener id de estado pago mensual
-        administrativaRequest.get("estado_pago_mensual", $.param({
-          query: "CodigoAbreviacion:PRC",
-          limit: 0
-        })).then(function (response) {
-          //Variable que contiene el Id del estado pago mensual
-          var id_estado = response.data[0].Id;
-          //Se arma elemento JSON para la solicitud
-          var pago_mensual = {
-            CargoResponsable: "COORDINADOR " + self.contrato.Dependencia,
-            EstadoPagoMensual: { Id: id_estado },
-            Mes: self.mes,
-            Ano: self.anio,
-            NumeroContrato: self.contrato.NumeroVinculacion,
-            Persona: self.Documento,
-            Responsable: self.informacion_coordinador.numero_documento_coordinador,
-            VigenciaContrato: parseInt(self.contrato.Vigencia)
-          };
-
-          pago_mensual.CargoResponsable = pago_mensual.CargoResponsable.substring(0, 69);
-
-          administrativaRequest.get("pago_mensual", $.param({
-            query: "NumeroContrato:" + self.contrato.NumeroVinculacion +
-              ",VigenciaContrato:" + self.contrato.Vigencia +
-              ",Mes:" + self.mes +
-              ",Ano:" + self.anio,
-            limit: 0
-          })).then(function (response) {
-
-            if (response.data == null) {
-
-              administrativaRequest.post("pago_mensual", pago_mensual).then(function (response) {
-                swal(
-                  'Solicitud registrada y enviada',
-                  'Se ha enviado la solicitud a la coordinación',
-                  'success'
-                )
-
-                self.cargar_soportes(self.contrato);
-
-
-                self.gridApi2.core.refresh();
-
-                //   self.contrato = {};
-                self.mes = {};
-                self.anio = {};
-                self.mostrar_boton = true;
-
-              });
-
-            } else {
-
-              swal(
-                'Error',
-                $translate.instant('YA_EXISTE'),
-                'error'
-              );
-
-              self.mostrar_boton = true;
-            }
-
-          });
-
-        });
-      } else {
-        swal(
-          'Error',
-          $translate.instant('DEBE_SELECCIONAR'),
-          'error'
-        );
-        self.mostrar_boton = true;
-      }
-
-
-    };
-
-
-    self.enviar_revision_check = function (solicitud) {
-
+    /*
+    * @ngdoc function
+    * @name enviar_solicitudResp_soporte
+    * @description
+    * Método que envia el soporte asociado a una actividad del plan de trbaajo para que el coordinador lo valide
+    * 
+    * @param {solicitudResp} fila seleccionada en el grid que contiene la información del soporte
+    * 
+    */
+    self.enviar_solicitudResp_soporte = function (solicitudResp) {
+      //console.log("enviada");
       swal({
-        title: '¿Está seguro(a) de enviar el cumplido a la coordinación?',
+        title: '¿Está seguro(a) de enviar el soporte a la coordinación?',
         type: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -676,29 +650,35 @@ angular.module('contractualClienteApp')
         cancelButtonText: $translate.instant('CANCELAR'),
         confirmButtonText: $translate.instant('ENVIAR')
       }).then(function () {
-        solicitud.EstadoPagoMensual = { "Id": 1 };
-        solicitud.Responsable = self.informacion_coordinador.numero_documento_coordinador;
-        solicitud.CargoResponsable = "COORDINADOR " + self.contrato.Dependencia;
-        solicitud.CargoResponsable = solicitud.CargoResponsable.substring(0, 69);
-        administrativaRequest.put('pago_mensual', solicitud.Id, solicitud).
-          then(function (response) {
-            swal(
-              $translate.instant('SOLICITUD_ENVIADA'),
-              $translate.instant('SOLICITUD_EN_ESPERA'),
-              'success'
-            )
-            self.cargar_soportes(self.contrato);
-            self.gridApi2.core.refresh();
-          })
-
+        var pos = self.gridOptions1.data.indexOf(self.filaActividad);
+        self.documentos[pos].solicitud.Estado.Id=2;
+        //self.documentos[pos].solicitud.FechaCreacion.Id=2;
+        planTrabajoService.put('solicitud_soporte_plan_trabajo', self.documentos[pos].id_solicitud, self.documentos[pos].solicitud)
+        .then(function(){
+          swal(
+            'SOLICITUD ENVIADA',
+            'success'
+          )
+          grid.appScope.cargarsolicitudSoporte(self.indexActividad);
+          self.gridApi2.core.refresh();
+        })
+        .catch(function(error){
+          swal(
+            'Error',
+            "No se pudo enviar la solicitud",
+            'warning'
+          );
+          console.log(error);
+        });        
+      }).catch(function(error){//excepcion lanzada al cerrar la swal
 
       });
+    }
 
 
 
-    };
 
-    
+
 
 
 

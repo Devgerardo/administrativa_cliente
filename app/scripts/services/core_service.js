@@ -18,6 +18,7 @@ angular.module('coreService', [])
         return {
             get: function(tabla, params) {
                 return $http.get(path + tabla + "/?" + params, token_service.setting_bearer.headers);
+                // return $http.get(path + tabla );
             },
             post: function(tabla, elemento) {
                 return $http.post(path + tabla, elemento, token_service.setting_bearer.headers);

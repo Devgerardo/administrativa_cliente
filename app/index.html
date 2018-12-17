@@ -7,6 +7,7 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <script src="https://use.fontawesome.com/64b53ddd5b.js"></script>
+    <!-- <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script> -->
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
@@ -106,7 +107,7 @@
     <!-- endbuild -->
 
     <script src="bower_components/bootstrap-fileinput/js/locales/es.js"></script>
-    <script src="scripts/es.js"></script>
+    <!-- <script src="scripts/es.js"></script> -->
 
 
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
@@ -191,7 +192,10 @@
 <script src="scripts/services/configuracion_service.js"></script>
 <script src="scripts/services/grid_options_service.js"></script>
 <script src="scripts/services/config.js"></script>
-<script src="scripts/services/nuxeo_service.js"></script>
+
+
+<script src="scripts/services/nuxeo.js"></script>
+<script src="scripts/services/nuxeo_client.js"></script>
 <script src="scripts/controllers/seguimientoycontrol/tecnico/aprobacion_coordinador.js"></script>
 <script src="scripts/controllers/seguimientoycontrol/tecnico/aprobacion_documentos.js"></script>
 <script src="scripts/controllers/seguimientoycontrol/tecnico/aprobacion_pago.js"></script>
@@ -206,11 +210,15 @@
 
 
 <script src="scripts/directives/archivovalido.js"></script>
-<script src="scripts/services/aniossoportes.js"></script>
+
+<script src="scripts/services/plan_trabajo_service.js"></script>
+<script src="scripts/services/plan_trabajo_mid_service.js"></script>
+
 <script src="scripts/controllers/seguimientoycontrol/plan_trabajo_docente/carga_documentos_docente.js"></script>
 <script src="scripts/controllers/seguimientoycontrol/plan_trabajo_docente/aprobacion_coordinador_plan_trabajo.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/plan_trabajo_docente/aprobacion_decano.js"></script>
 
-<script src="scripts/services/aniossoportes.js"></script>
+<script src="scripts/services/servicios_academicos_service.js"></script>
 <!-- endbuild -->
 <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
 

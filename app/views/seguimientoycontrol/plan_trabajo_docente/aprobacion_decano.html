@@ -1,0 +1,148 @@
+<br>
+<div class="panel panel-default">
+    <div class="panel panel-primary panel-body">
+      <!--Cabecera del panel-->
+      <h2 class="page-header text-center">{{ 'TITULO_REV_DECANO' | translate}}</h2>
+  
+      <div class="panel-body">
+        <div class="row">
+          <div class="panel panel-default col-lg-10 col-lg-offset-1">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label> SELECCIONE LA DEPENDENCIA PARA CONSULTAR LOS PROYECTOS CURRICULARES </label>
+                        <select class="form-control" ng-model="aprobacionDecanoPlanTrabajo.dependencia" ng-options="option.Nombre for option in aprobacionDecanoPlanTrabajo.meses">
+                          <option value="">--Seleccione la dependencia--</option>
+                        </select>
+                      </div>
+                </div>
+
+                <br>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <label>PERIODO</label>
+                  </div>
+                  <div class="col-md-4">
+                      <label>{{'PRO_CURR' | translate }}</label>
+                  </div>
+                </div>
+            
+                <div class="row">  
+                  <div class="col-md-4">
+                    
+                    <select class="form-control" ng-model="aprobacionDecanoPlanTrabajo.periodoSeleccionado" ng-options="periodo.nombre as periodo.nombre for periodo in aprobacionDecanoPlanTrabajo.periodos">
+                      <option value="">--Seleccione el periodo--</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                    <select class="form-control" ng-model="aprobacionDecanoPlanTrabajo.proyectoSeleccionado" ng-options="proyecto.Nombre for proyecto in aprobacionDecanoPlanTrabajo.proyectos">
+                      <option value="">--Seleccione el proyecto curricular-</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                      <button class="btn btn-success" ng-click="aprobacionDecanoPlanTrabajo.cargarDocentes()">{{'CONSULATAR
+                        SOLICITUDES'}}</button>
+                    </div>
+                  </div>    
+                </div>
+  
+                <br><br>
+                <form>
+                  <div style="height: {{gridHeight}}px;" ui-grid="aprobacionDecanoPlanTrabajo.gridOptions1" align='center' ui-grid-auto-resize ui-grid-selection></div>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+  
+  
+<!-- Modal para visualizar la fecha y el estado de las solicitudes -->
+<div id="modal_ver_solicitudes_docente" class="modal" role="dialog" data-keyboard="false" data-backdrop="static">
+
+    <div class="modal-content col-md-10 col-md-offset-1" style="margin-top: 5%">
+  
+      <div class="modal-header">
+        <button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
+        <br>
+      </div>
+      <div class="modal-body">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title text-center">{{"SOLICITUDES DE " +
+              aprobacionDecanoPlanTrabajo.fila_seleccionada.nombre}}</h3>
+          </div>
+          <loading load="aprobacionDecanoPlanTrabajo.cargandoSolicitudesDocente" tam="4"></loading>
+          <div ng-if="!aprobacionDecanoPlanTrabajo.cargandoSolicitudesDocente" class="panel-body">
+            <div ui-grid="aprobacionDecanoPlanTrabajo.gridOptions2" class="mi-grid" id="mi-grid" ui-grid-selection
+              ui-grid-auto-resize></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <!-- Modal en el que se visualizan los soportes asociados a una actividad -->
+  <div id="modal_ver_soportes" class="modal fade" role="dialog">
+    <div class="modal-content col-md-6 col-md-offset-3" style="margin-top: 5%" align="center">
+  
+      <div class="modal-header">
+        <button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
+        <br>
+      </div>
+  
+      <div class="modal-body">
+  
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{'VER_SOP' | translate}}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12 col-lg-12">
+                <p>{{'PARRA_VER_SOP_PLAN' | translate }}</p>
+                <p>{{aprobacionDecanoPlanTrabajo.fila_seleccionada.tipo}}</p>
+              </div>
+            </div>
+  
+            <div class="col-md-12" ng-model="aprobacionDecanoPlanTrabajo.documentos">
+              <md-card md-theme="{{ showDarkTheme ? 'dark-purple' : 'default' }}" md-theme-watch>
+                <md-card-title>
+                  <md-card-title-text>
+                    <span class="md-headline">{{aprobacionDecanoPlanTrabajo.solicitudes[aprobacionDecanoPlanTrabajo.index].nombreArchivo}}</span>
+                    <span class="md-subhead">{{aprobacionDecanoPlanTrabajo.solicitudes[aprobacionDecanoPlanTrabajo.index].fechaCreacion}}</span>
+                    <span class="md-subhead">{{aprobacionDecanoPlanTrabajo.solicitudes[aprobacionDecanoPlanTrabajo.index].descripcion}}</span>
+                  </md-card-title-text>
+                  <md-card-title-media>
+                    <div class="md-media-sm card-media"></div>
+                  </md-card-title-media>
+                </md-card-title>
+                <md-card-content>
+                  <span class="md-subhead">Observaciones sobre el documento:</span>
+                  <md-switch class="md-primary" ng-model="aprobacionDecanoPlanTrabajo.checkObservaciones" ng-change="aprobacionDecanoPlanTrabajo.cambiarObservaciones()">
+                    Observaciones del docente / Mis observaciones</md-switch>
+                  <md-input>
+                    <textarea ng-model="aprobacionDecanoPlanTrabajo.observacionesDoc" ng-disabled="aprobacionDecanoPlanTrabajo.checkObservaciones" rows='3' cols='50'></textarea>
+                  </md-input>
+                </md-card-content>
+                <md-card-actions layout="row" layout-align="end center">
+                  <md-button ng-if="aprobacionDecanoPlanTrabajo.fila_seleccionada.tipo === 'Archivo'" ng-click="aprobacionDecanoPlanTrabajo.visualizar_enlace(aprobacionDecanoPlanTrabajo.solicitudes[aprobacionDecanoPlanTrabajo.index].blobUrl)"
+                    class="md-primary">VER DOCUMENTO</md-button>
+                  <md-button ng-if="aprobacionDecanoPlanTrabajo.fila_seleccionada.tipo === 'Enlace'" ng-click=" aprobacionDecanoPlanTrabajo.visualizar_enlace(aprobacionDecanoPlanTrabajo.solicitudes[aprobacionDecanoPlanTrabajo.index].enlace) ">VER
+                    DOCUMENTO</md-button>
+                    <md-button ng-if="aprobacionDecanoPlanTrabajo.observacionesDoc" class="btn btn-danger btn-outline" ng-click="aprobacionDecanoPlanTrabajo.enviar_comentario()">Enviar observaciones</md-button>
+                </md-card-actions>
+              </md-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

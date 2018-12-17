@@ -2,136 +2,574 @@
 
 /**
  * @ngdoc function
- * @name contractualClienteApp.controller:SeguimientoycontrolPlanTrabajoDocenteAprobacionCoordinadorPlanTrabajoCtrl
+ * @name contractualClienteApp.controller:SeguimientoycontrolPlanTrabajoDocenteaprobacionCoordinadorPlanTrabajoPlanTrabajoPlanTrabajoCtrl
  * @description
- * # SeguimientoycontrolPlanTrabajoDocenteAprobacionCoordinadorPlanTrabajoCtrl
+ * # SeguimientoycontrolPlanTrabajoDocenteaprobacionCoordinadorPlanTrabajoPlanTrabajoPlanTrabajoCtrl
  * Controller of the contractualClienteApp
  */
 angular.module('contractualClienteApp')
-  .controller('SeguimientoycontrolPlanTrabajoDocenteAprobacionCoordinadorPlanTrabajoCtrl', function (homologacionDependenciaService, oikosRequest, $http, uiGridConstants, contratoRequest, $translate, administrativaRequest, academicaWsoService, coreRequest, $q, $window, $sce, nuxeo, adminMidRequest, $routeParams, wso2GeneralService) {
-    
-     //Se utiliza la variable self estandarizada
-     var self = this;
+    .controller('SeguimientoycontrolPlanTrabajoDocenteAprobacionCoordinadorPlanTrabajoCtrl', function ($scope, $http, uiGridConstants, $translate, academicaWsoService, planTrabajoMidService, planTrabajoService, coreRequest, $q, $window, $sce, nuxeoClient, $routeParams, $interval, $timeout, $filter) {
 
-    var tmpl = '<div ng-if="!row.entity.editable">{{COL_FIELD}}</div><div ng-if="row.entity.editable"><input ng-model="MODEL_COL_FIELD"</div>';
+        //Se utiliza la variable self estandarizada
+        var self = this;
+        self.cargando = false;
+        self.cargandoSolicitudesDocente = false;
+        self.solicitudes = [];
 
-    /*
-      Función que obtiene la información correspondiente al coordinador
-    */
-    self.obtener_informacion_coordinador = function (documento) {
-      //Se realiza petición a servicio de academica que retorna la información del coordinador
-      academicaWsoService.get(' ', documento).
-        then(function (response) {
-          self.informacion_coordinador = response.data;
-        //  self.coordinador = self.informacion_coordinador.coordinadorCollection.coordinador[0];
-          self.proyectos_coordinador = self.informacion_coordinador.coordinadorCollection.coordinador;
-          self.nombre_coordinador = self.informacion_coordinador.coordinadorCollection.coordinador[0].nombre_coordinador;
-        })
-    };
+        var tmpl = '<div ng-if="!row.entity.editable">{{COL_FIELD}}</div><div ng-if="row.entity.editable"><input ng-model="MODEL_COL_FIELD"</div>';
 
-    self.gridOptions1 = {
-      enableSorting: true,
-      enableFiltering: true,
-      resizable: true,
-      rowHeight: 40,
-      
-      //enableHiding: false,
-      columnDefs: [
-          {
-          field: 'Documento',
-          cellTemplate: tmpl,
-          displayName: $translate.instant('DOCUMENTO'),
-          sort: {
-            direction: uiGridConstants.ASC,
-          },
-          width: "20%",
-          enableHiding: false,
-        },
-        {
-          field: 'NombrePersona',
-          cellTemplate: tmpl,
-          displayName: $translate.instant('NAME_TEACHER'),
-          sort: {
-            direction: uiGridConstants.ASC,
-          },
-          enableHiding: false,
-        },
-        {
-        field: 'Acciones',
-        displayName: $translate.instant('ACC'),
-        cellTemplate: '<a type="button" title="Ver soportes" type="button" class="fa fa-eye fa-lg  faa-shake animated-hover"' +
-          'ng-click="grid.appScope.aprobacionCoordinadorPlanTrabajo.obtener_doc(row.entity.PagoMensual)" data-toggle="modal" data-target="#modal_ver_soportes"</a>&nbsp;' +
-          '<a type="button" title="Visto bueno" type="button" class="fa fa-check fa-lg  faa-shake animated-hover"' +
-          'ng-click="grid.appScope.aprobacionCoordinadorPlanTrabajo.dar_visto_bueno(row.entity.PagoMensual)"></a>&nbsp;'+
-          '<a type="button" title="Rechazar" type="button" class="fa fa-close fa-lg  faa-shake animated-hover"' +
-          'ng-click="grid.appScope.aprobacionCoordinadorPlanTrabajo.rechazar(row.entity.PagoMensual)"></a>',
-        width: "10%",
-        enableHiding: false,
-      }
-      ]
-      
-    };
+        self.anio;
+        self.periodo;
+        self.proyectosCoordinador = {};
 
-    self.gridOptions1.data = [
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      },
-      {
-        "Documento": "1234567",
-        "NombrePersona": "NombrePersona de prueba"
-      }
-      
-    ];
+        self.gridOptions1 = {
+            enableSorting: true,
+            enableFiltering: true,
+            resizable: true,
+            multiSelect: false,
+            noUnselect: true,
+            enableFullRowSelection: true,
+            resizable: true,
+            //enableColumnMenus: false,
+            enableHorizontalScrollbar: 2,
+            enableVerticalScrollbar: 2,
+
+            //enableHiding: false,
+
+            paginationPageSizes: [10, 20, 30],
+            paginationPageSize: 10,
+
+            columnDefs: [
+                {
+                    field: 'id',
+                    cellTemplate: tmpl,
+                    displayName: $translate.instant('DOCUMENTO'),
+                    sort: {
+                        direction: uiGridConstants.ASC,
+                    },
+                    width: "20%",
+                    enableHiding: false,
+                },
+                {
+                    field: 'nombre',
+                    cellTemplate: tmpl,
+                    displayName: $translate.instant('NAME_TEACHER'),
+                    sort: {
+                        direction: uiGridConstants.ASC,
+                    },
+                    enableHiding: false,
+                },
+                {
+                    field: 'Acciones',
+                    displayName: $translate.instant('ACC'),
+                    cellTemplate: '<a type="button" title="Ver soportes" type="button" ng-click="grid.appScope.aprobacionCoordinadorPlanTrabajo.setRow(row.entity); grid.appScope.aprobacionCoordinadorPlanTrabajo.cargarSolicitudesDocente(row.entity)" class="fa fa-eye fa-lg  faa-shake animated-hover" data-toggle="modal" data-target="#modal_ver_solicitudes_docente"</a>',
+                    width: "10%",
+                    enableHiding: false,
+                }
+            ]
+        };
+
+        self.gridOptions1.onRegisterApi = function (gridApi) {
+            self.gridApi1 = gridApi;
+            self.seleccionados = self.gridApi1.selection.selectedCount;
+            self.gridApi1.selection.on.rowSelectionChanged($scope, function (row) {
+                //Contiene la info del elemento seleccionado
+                self.seleccionado = row.isSelected;
+                //Condicional para capturar la información de la fila seleccionado
+                if (self.seleccionado) {
+                    self.fila_seleccionada = row.entity;
+                }
+            });
+        };
+
+        self.gridOptions2 = {
+            enableRowSelection: true,
+            enableFullRowSelection: true,
+            multiSelect: false,
+            noUnselect: true,
+            enableSorting: true,
+            enableFiltering: false,
+            resizable: true,
+            enableColumnMenus: false,
+            enableHorizontalScrollbar: 2,
+            enableVerticalScrollbar: 2,
+
+            columnDefs: [
+                {
+                    name: 'nombreActividad',
+                    displayName: $translate.instant('ACTIVIDAD'),
+                },
+                {
+                    name: 'descripcion',//debe llamarse tal cual se llame el campo en el response
+                    displayName: $translate.instant('SOPORTE'),
+                },
+                {
+                    name: 'fechaCreacion',//debe llamarse tal cual se llame el campo en el response
+                    displayName: $translate.instant('FECHA DE ENVIO'),
+                },
+                {
+                    name: 'estado',
+                    displayName: $translate.instant('ESTADO'),
+                },
+                {
+                    name: 'codEstado',
+                    //visible: false
+                },
+                {
+                    field: 'Acciones',
+                    displayName: $translate.instant('ACC'),
+                    cellTemplate:
+                        '<a type="button" title="Ver soportes" type="button" class="fa fa-folder fa-lg faa-shake animated-hover"' +
+                        'ng-click="grid.appScope.aprobacionCoordinadorPlanTrabajo.setIndex(row.entity);grid.appScope.aprobacionCoordinadorPlanTrabajo.traerArchivoNuxeo()" data-toggle="modal" data-target="#modal_ver_soportes"</a>&nbsp' +
+                        '<a ng-if="row.entity.codEstado === 2" type="button" title="Visto bueno" type="button" class="fa fa-check fa-lg  faa-shake animated-hover"' +
+                        'ng-click="grid.appScope.aprobacionCoordinadorPlanTrabajo.setIndex(row.entity);grid.appScope.aprobacionCoordinadorPlanTrabajo.dar_visto_bueno()"></a>&nbsp;' +
+                        '<a ng-if="row.entity.codEstado === 2" type="button" title="Desaprobar" type="button" class="fa fa-close fa-lg  faa-shake animated-hover"' +
+                        'ng-click="grid.appScope.aprobacionCoordinadorPlanTrabajo.setIndex(row.entity);grid.appScope.aprobacionCoordinadorPlanTrabajo.desaprobar();"></a>',
+                    width: "10%",
+                }
+            ]
+        };
+
+        self.gridOptions2.onRegisterApi = function (gridApi) {
+            self.gridApi2 = gridApi;
+            self.seleccionados = self.gridApi2.selection.selectedCount;
+            self.gridApi2.selection.on.rowSelectionChanged($scope, function (row) {
+                //Contiene la info del elemento seleccionado
+                self.seleccionado = row.isSelected;
+                //Condicional para capturar la información de la fila seleccionado
+                if (self.seleccionado) {
+                    self.fila_seleccionada = row.entity;
+                }
+            });
+        };
 
 
 
-  });
+        self.dimensionarGrilla = function () {
+
+            $interval(function () {
+                self.gridApi2.core.handleWindowResize();
+            }, 500, 10);
+            $timeout(function () {
+                //self.cargando = false;
+                console.log("dimensionado " + self.cargandoSolicitudesDocente);
+                self.cargandoSolicitudesDocente = false;
+                console.log("dimensionado " + self.cargandoSolicitudesDocente);
+            }, 2000); // 3
+        };
+
+        self.setIndex = function (fila) {
+            self.setRow(fila);
+            self.index = self.gridOptions2.data.indexOf(self.fila_seleccionada);
+        }
+
+        self.setRow = function (fila) {
+            self.fila_seleccionada = fila;
+            //self.setIndex();
+        };
+
+        self.cambiarObservaciones = function () {
+            if (self.checkObservaciones) {
+                self.observacionesDoc = self.solicitudes[self.index].observaciones;
+                self.observacionesCoordinador = observacionesDoc;
+            } else {
+                self.observacionesDoc = self.solicitudes[self.index].observacionesDocente;
+            }
+        }
+
+        /*
+         Función que obtiene la información correspondiente al coordinador
+        */
+
+        self.obtener_informacion_coordinador = function (documento) {
+            //Se realiza petición a servicio de academica que retorna la información del coordinador
+            self.cargando = true;
+            academicaWsoService.get('coordinador_carrera_snies', documento).
+                then(function (response) {
+                    self.informacion_coordinador = response.data;
+                    //  self.coordinador = self.informacion_coordinador.coordinadorCollection.coordinador[0];
+                    self.coordinador = self.informacion_coordinador.coordinadorCollection.coordinador;
+                    self.proyectosCoordinador = [];
+                    if (self.coordinador.length === 1) {
+                        //self.proyectoSeleccionado = self.coordinador[0].codigo_condor;
+                        self.proyectoSeleccionado = 181;
+                    }
+                    self.coordinador.forEach(function (coordinador) {
+                        var proyecto = {};
+                        proyecto.codigo = coordinador.codigo_condor;
+                        proyecto.nombre = coordinador.nombre_proyecto_condor;
+                        self.proyectosCoordinador.push(proyecto);
+                    });
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            self.cargando = false;
+        };
+
+        self.obtener_informacion_coordinador("79391646");
+
+        self.cargarPeriodos = function () {
+            self.cargando = true;
+            academicaWsoService.get('periodos', "")
+                .then(function (responsePeriodos) {
+                    self.periodosTemp = responsePeriodos.data.periodosCollection.datosPeriodos;
+                    self.periodos = self.periodosTemp.filter(function (objPeriodo) {
+                        return (objPeriodo.anio >= 2018 || (objPeriodo.anio == 2017 && objPeriodo.periodo != 1));
+                    });
+
+                    angular.forEach(self.periodos, function (periodo) {
+                        periodo.nombre = periodo.anio + "-" + periodo.periodo;
+                    });
+                    self.cargando = false;
+                })
+                .catch(function (error) {
+                    swal(
+                        'Error',
+                        "No se pudo cargar los periodos",
+                        'warning'
+                    );
+                });
+        }
+
+        self.cargarPeriodos();
+
+        /*
+        */
+        self.cargarDocentes = function () {
+
+            self.cargando = true;
+
+            if (self.periodoSeleccionado != null && self.periodoSeleccionado != undefined) {
+                //var semestre = self.periodoSeleccionado.replace('-', '/');
+                var arregloPeriodo = self.periodoSeleccionado.split("-");
+                self.anio = arregloPeriodo[0];
+                self.periodo = arregloPeriodo[1];
+
+
+                planTrabajoMidService.get("/solicitud_soporte_plan_trabajo/docentes_solicitudes/", $.param({
+                    iddependencia: self.proyectoSeleccionado,
+                    estados: "estado:2,estado:4",//estados de esperando aprovacion y rechazado
+                    anio: self.anio,
+                    periodo: self.periodo,
+                }))
+                    .then(function (docentesResp) {
+                        var dataAux = []
+                        angular.forEach(docentesResp.data, function (docente) {
+                            var docenteAux = {}
+                            if (docente.SegundoNombre !== undefined) {
+                                docente.SegundoNombre = docente.SegundoNombre + " ";
+                            }
+                            docenteAux.id = docente.Id;
+                            docenteAux.nombre = docente.PrimerNombre + " " + docente.SegundoNombre + "" + docente.PrimerApellido + " " + docente.SegundoApellido;
+                            dataAux.push(docenteAux);
+                        });
+                        self.gridOptions1.data = dataAux;
+                        self.gridApi1.core.refresh();
+                        self.cargando = false;
+                    })
+                    .catch(function (error) {
+                        swal(
+                            'Error',
+                            "No se pudo cargar la informacion",
+                            'warning'
+                        );
+                        console.log(error)
+                    })
+            }
+        }
+
+        /**
+         * 
+         * 
+         * 
+         * 
+         * 
+         *  
+        */
+        self.cargarSolicitudesDocente = function (fila) {
+
+            self.cargandoSolicitudesDocente = true;
+
+            planTrabajoService.get("solicitud_soporte_plan_trabajo", $.param({
+                limit: -1,
+                query: "persona:" + self.fila_seleccionada.id + ",anio:" + self.anio + ",periodo:" + self.periodo
+                    + ",organizacion:" + self.proyectoSeleccionado,
+                orCondition: "estado:2,estado:4"//estados de esperando aprovacion y rechazado
+            }))
+                .then(function (solicitudesResp) {
+                    self.solicitudes = [];
+
+                    self.cargarActividades().then(function (planResp) {
+                        (async function () {
+                            for (let solicitudR of solicitudesResp.data) {
+                                var solicitud = {};
+                                solicitud.documento = solicitudR.Documento;
+                                solicitud.id = solicitudR.Id;
+                                solicitud.observaciones = solicitudR.Observaciones;
+                                solicitud.solicitudOriginal = solicitudR;
+                                solicitud.estado = solicitudR.Estado.Nombre;
+                                console.log(solicitud.estado);
+                                solicitud.codEstado = solicitudR.Estado.Id;
+                                var aux = $filter('filter')(planResp, { 'cod_actividad': solicitud.Actividad });
+                                solicitud.nombreActividad = aux[0].nombre;//remover '[0]' cuando se agregue el id del grupo
+                                solicitud.horas = aux.horas;
+
+                                console.log(solicitud);
+
+                                await coreRequest.get('documento', $.param({
+                                    query: "Id:" + solicitud.documento
+                                }))
+                                    .then(function (documentoResp) {
+                                        console.log(documentoResp);
+                                        documentoResp.data[0].Contenido = JSON.parse(documentoResp.data[0].Contenido);
+                                        solicitud.nombreDoc = documentoResp.data[0].Nombre;
+                                        solicitud.descripcion = documentoResp.data[0].Descripcion;
+                                        solicitud.fechaCreacion = documentoResp.data[0].Contenido.FechaCreacion;
+                                        solicitud.observacionesDocente = documentoResp.data[0].Contenido.Observaciones;
+                                        solicitud.tipo = documentoResp.data[0].Contenido.Tipo;
+                                        if (solicitud.tipo === "Archivo") {
+                                            solicitud.idNuxeo = documentoResp.data[0].Contenido.IdNuxeo;
+                                            solicitud.nombreArchivo = documentoResp.data[0].Contenido.NombreArchivo;
+
+                                        } else {
+                                            solicitud.enlace = documentoResp.data[0].Contenido.Enlace;
+                                            solicitud.nombreArchivo = "Enlace";
+                                        }
+                                        self.solicitudes.push(solicitud);
+                                    })
+                                    .catch(function (error) {
+                                        console.log(error);
+                                    })
+                            }
+                        })();
+                        self.gridOptions2.data = self.solicitudes;
+                        self.gridApi2.core.refresh();
+                        self.dimensionarGrilla();
+                    })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                })
+                .catch(function (error) {
+                    swal(
+                        $translate.instant("ERROR"),
+                        $translate.instant("ERROR AL CARGAR LAS SOLICITUDES"),
+                        'warning'
+                    );
+                    console.log(error);
+                })
+        }
+
+        /* @ngdoc method
+        * @name cargarActividades
+        * @methodOf 
+        * @description
+        * Función que con la cedula del docente y el semestre busca en la base de datos las actividades que este
+        * tiene asociadas y con la informacion de estas relevante para el coordinador se llena un arreglo
+        */
+        self.cargarActividades = function () {
+
+            var deferred = $q.defer();
+
+            academicaWsoService.get('consulta_plan_trabajo', self.fila_seleccionada.id + "/" + self.anio + "/" + self.periodo)
+                .then(function (response) {
+                    if (response.data.planCollection.plan != null && response.data.planCollection.plan != undefined) {
+                        var actividades = [];
+
+                        angular.forEach(response.data.planCollection.plan, function (plan) {
+                            var actividad = {};
+                            if (plan.cod_actividad === '1') {
+                                actividad.nombre = plan.asignatura;//concatenar grupo
+                            } else {
+                                actividad.nombre = plan.actividad;
+                            }
+                            actividad.cod_actividad = plan.cod_actividad;
+                            actividad.horas = plan.horas;
+                            actividades.push(actividad);
+                        });
+                        deferred.resolve(actividades);
+                    }
+                })
+                .catch(function (error) {
+                    deferred.reject(error)
+                })
+            return deferred.promise;
+        }
+
+
+
+        self.traerArchivoNuxeo = function (fila) {
+
+            console.log("trear Archivo");
+
+            if (self.solicitudes[self.index].tipo === "Archivo") {
+
+                if (self.indexTemp !== self.index) {
+                    self.indexTemp = self.index;
+
+                    console.log(self.solicitudes[self.index].idNuxeo);
+
+                    nuxeoClient.getDocument(self.solicitudes[self.index].idNuxeo)
+                        .then(function (archivoResp) {
+                            console.log(archivoResp);
+                            self.solicitudes[self.index].blobUrl = archivoResp.url;
+                        })
+                        .catch(function (error) {
+                            swal(
+                                $translate.instant("ERROR"),
+                                $translate.instant("ERROR.CARGAR_DOCUMENTO"),
+                                'warning'
+                            );
+                        });
+                }
+            }
+        }
+
+
+        /*
+        * @ngdoc function
+        * @name dar_visto_bueno
+        * @description
+        * Método que envia el soporte asociado a una actividad del plan de trbaajo para que el coordinador lo valide
+        * 
+        * @param {solicitudResp} fila seleccionada en el grid que contiene la información del soporte
+        * 
+        */
+        self.dar_visto_bueno = function (solicitudResp) {
+            swal({
+                title: '¿Está seguro(a) de aprobar el documento?',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: $translate.instant('CANCELAR'),
+                confirmButtonText: $translate.instant('ENVIAR')
+            }).then(function () {
+                self.solicitudes[self.index].solicitudOriginal.Estado.Id = 3;
+                //self.documentos[pos].solicitud.FechaCreacion=;
+                planTrabajoService.put('solicitud_soporte_plan_trabajo', self.solicitudes[self.index].id, self.solicitudes[self.index].solicitudOriginal)
+                    .then(function () {
+                        swal(
+                            'DOCUMENTO APROVADO',
+                            'El documento ha sido aprobado',
+                            'success'
+                        )
+                    })
+                    .catch(function (error) {
+                        swal(
+                            'Error',
+                            "No se pudo aprobar el documento",
+                            'warning'
+                        );
+                        console.log(error);
+                    });
+                //grid.appScope.cargarsolicitudSoporte(self.indexActividad);
+                self.solicitudes.splice(self.index, 1);
+                self.gridApi2.core.refresh();
+            }).catch(function (error) {//excepcion lanzada al cerrar la swal
+
+            });
+        }
+
+        /*
+        * @ngdoc function
+        * @name dar_visto_bueno
+        * @description
+        * Método que envia el soporte asociado a una actividad del plan de trbaajo para que el coordinador lo valide
+        * 
+        * @param {solicitudResp} fila seleccionada en el grid que contiene la información del soporte
+        * 
+        */
+        self.desaprobar = function (solicitudResp) {
+            if (observacionesCoordinador === "") {
+                swal(
+                    'Error',
+                    "Debe incluir una observación que indice la razón de la desaprobación",
+                    'warning'
+                );
+            } else {
+                swal({
+                    title: '¿Está seguro(a) de desaprobar el documento?',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: $translate.instant('CANCELAR'),
+                    confirmButtonText: $translate.instant('ENVIAR')
+                }).then(function () {
+                    //var pos = self.gridOptions1.data.indexOf(self.filaActividad);
+                    console.log(self.gridOptions2.data);
+                    self.solicitudes[self.index].solicitudOriginal.Estado.Id = 4;
+                    //self.documentos[pos].solicitud.FechaCreacion=;
+                    planTrabajoService.put('solicitud_soporte_plan_trabajo', self.solicitudes[self.index].id, self.solicitudes[self.index].solicitudOriginal)
+                        .then(function () {
+                            swal(
+                                'DOCUMENTO DESAPROBADO',
+                                'El documento ha sido desaprobado',
+                                'success'
+                            )
+                        })
+                        .catch(function (error) {
+                            swal(
+                                'Error',
+                                "No se pudo rechazar el documento",
+                                'warning'
+                            );
+                            console.log(error);
+                        });
+                    //grid.appScope.cargarsolicitudSoporte(self.indexActividad);
+                    //self.solicitudes[self.index].estado = 4;
+
+                    console.log(self.gridOptions2.data);
+                    self.gridOptions2.data[self.index].codEstado = 4;
+                    console.log(self.gridOptions2.data);
+                    self.gridApi2.core.refresh();
+                }).catch(function (error) {//excepcion lanzada al cerrar la swal
+
+                });
+            }
+        }
+
+        self.enviar_observaciones = function () {
+            if (observacionesCoordinador !== "") {
+                swal({
+                    title: '¿Está seguro(a) de enviar la observación?',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Aceptar'
+                }).then(function () {
+
+                    self.solicitudes[self.index].solicitudOriginal.Observaciones = self.observacionesDoc;
+                    coreRequest.put('documento', self.solicitudes[self.index].id, self.solicitudes[self.index]).
+                        then(function (response) {
+                            swal(
+                                'DOCUMENTO APROVADO',
+                                'Se han guardado las observaciones',
+                                'success'
+                            )
+                        });
+                });
+            }
+        }
+
+        /*
+        Función para visualizar enlace
+        */
+        self.visualizar_enlace = function (url) {
+            console.log(self.fila_seleccionada.tipo)
+            console.log(self.index)
+            console.log(self.solicitudes)
+            console.log(url)
+            $window.open(url);
+        };
+
+
+
+
+
+
+
+    });

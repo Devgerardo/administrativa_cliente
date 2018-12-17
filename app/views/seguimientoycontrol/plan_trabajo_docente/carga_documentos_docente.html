@@ -2,29 +2,32 @@
 <div class="panel panel-default">
   <loading load="planTrabajoDocenteCargaDocumentos.cargando" tam="4"></loading>
   <div class="panel panel-primary panel-body" ng-if="!planTrabajoDocenteCargaDocumentos.cargando">
-     <!--Cabecera del panel-->
-     
+    <!--Cabecera del panel-->
+
     <h2 class="page-header text-center">{{'TITULO_CARGAR_SOPORTES' | translate}}</h2>
     <h3 class="text-center">Seleccione el periodo a consultar</h3>
-    <div class="col-md-2 col-md-offset-5">
-      <select  ng-model="periodo" class="form-control">
-        <option ng-repeat="periodo in planTrabajoDocenteCargaDocumentos.periodos" ng-value="periodo">{{periodo.nombre}} </option>
-      </select>
+
+    <div class="col-md-4 col-md-offset-4">
+      <div class="input-group row form-group">
+        <select ng-model="planTrabajoDocenteCargaDocumentos.periodoSeleccionado" class="form-control" ng-options="periodo.nombre as periodo.nombre for periodo in planTrabajoDocenteCargaDocumentos.periodos"></select>
+        <span class="input-group-btn">
+          <button class="btn btn-success" ng-click="planTrabajoDocenteCargaDocumentos.cargarActividades()">{{'CONSULTAR_ACT'
+            translate}}</button>
+        </span>
+      </div>
     </div>
-    
-    <button class="btn btn-success" ng-click="planTrabajoDocenteCargaDocumentos.cargarActividades(semestre)">{{'CONSULTAR_ACT' | translate}}</button>
-    <br>
     <div class="panel-body">
       <div class="row">
         <div class="panel panel-default col-lg-10 col-lg-offset-1">
           <div class="panel-body">
 
             <div class="row">
-              <div ui-grid="planTrabajoDocenteCargaDocumentos.gridOptions1" class="mi-grid" id="mi-grid" ui-grid-selection ui-grid-auto-resize></div>
+              <div ui-grid="planTrabajoDocenteCargaDocumentos.gridOptions1" class="mi-grid" id="mi-grid"
+                ui-grid-selection ui-grid-auto-resize></div>
             </div>
             <br>
             <!-- div que se muestra cuando se selecciona una fila para anadir el soporte y muestra los tipos de adjuntos que el usuario puede hacer -->
-            <div class="col-md-12" ng-if="true">
+            <div class="col-md-12" ng-if="planTrabajoDocenteCargaDocumentos.seleccionado">
               <p>{{'DESC_ADJ' | translate}}</p>
               <!--Campo que pinta la opción archivo-->
               <fieldset class="form-group">
@@ -36,49 +39,148 @@
               </fieldset>
 
               <!--Div que se visualiza al seleccionar el check archivo-->
-              <div ng-if="planTrabajoDocenteCargaDocumentos.archivo">
-                <div class="col-md-1">
-                  <label class="control-label">{{'ARC' | translate}}</label>
-                </div>
-                <br>
-                <form name="myForm" >
-                  <input class="file" id="userUpload" name="userUpload" ng-model="userUpload" archivo-valido type="file" angular-bfi="{'showUpload':false, allowedFileExtensions:['pdf'], language:'es', maxFileSize: 2000}" file-model="planTrabajoDocenteCargaDocumentos.fileModel" required/>
-                  <div ng-if="myForm.$valid">
-                      <input type="submit" value="{{'SUBIR_DOCUMETO' | translate}}" class="btn btn-success">
+              <div class="col-md-12" ng-if="planTrabajoDocenteCargaDocumentos.archivo && planTrabajoDocenteCargaDocumentos.filaActividad">
+                <form name="formArchivo" novalidate ng-model="planTrabajoDocenteCargaDocumentos.formArchivo">
+                  <div class="row form-group">
+                    <label class="control-label">{{'ARC' | translate}}</label>
+                  </div>
+                  <div class="row form-group">
+                    <input class="file" id="userUpload" name="userUpload" type="file" ng-model="planTrabajoDocenteCargaDocumentos.fileModel"
+                      angular-bfi="{'showUpload':false, language:'es', maxFileSize: 2000, allowedFileExtensions:['pdf','png','jpg'],}"
+                      archivo-valido required>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label for="observacion" class="col-form-label">{{'OBSER' | translate}}</label>
+                    </div>
+                    <div class="col-md-6">
+                      <textarea id="observaciones" name="observaciones" rows="3" cols="50" ng-model="planTrabajoDocenteCargaDocumentos.observaciones"></textarea>
+                    </div>
+                  </div>
+                  <div ng-if="formArchivo.$valid">
+                    <input type="submit" value="{{'SUBIR_DOCUMETO' | translate}}" class="btn btn-success" ng-click="planTrabajoDocenteCargaDocumentos.crearsolicitudResp()">
                   </div>
                 </form>
               </div>
 
               <!--Div que se visualiza al seleccionar el check link-->
               <div class="row">
-                <div ng-if="planTrabajoDocenteCargaDocumentos.link">
-                  <div class="col-md-1">
-                    <label class="control-label">{{'ENL' | translate}}</label>
-                  </div>
-                  <div class="col-md-2">
-                    <input type="text" class="form-control" ng-model="planTrabajoDocenteCargaDocumentos.enlace" required>
-                  </div>
+                <div class="col-md-12" ng-if="planTrabajoDocenteCargaDocumentos.link && planTrabajoDocenteCargaDocumentos.filaActividad">
+                  <form name="formLink" novalidate>
+                    <div class="row form-group">
+                      <div class="col-md-1">
+                        <label class="control-label">{{'ENL' | translate}}</label>
+                      </div>
+                      <div class="col-md-3 col-md-offset-1">
+                        <input type="text" class="form-control" ng-model="planTrabajoDocenteCargaDocumentos.enlace"
+                          required ng-pattern="/.+\.udistrital\.edu\.co.+/">
+                      </div>
+                      <div class="col-md-3 col-md-offset-1">
+                        {{planTrabajoDocenteCargaDocumentos.enlace}}
+                      </div>
+                      <div class="col-md-3 col-md-offset-1" ng-messages="!formLink.$pristine && formLink.$error" style="color:maroon"
+                        role="alert">
+                        <div ng-message="pattern">El link debe pertenecer al dominio "udistrital.edu.co"</div>
+                      </div>
+                    </div>
+                    <div class="row form-group">
+                      <div class="col-md-1 form-group">
+                        <label for="observacion" class="col-form-label">{{'OBSER' | translate}}</label>
+                      </div>
+                      <div class="col-md-2 col-md-offset-1">
+                        <textarea rows="3" cols="50" ng-model="planTrabajoDocenteCargaDocumentos.observaciones"></textarea>
+                      </div>
+                    </div>
+                    <div ng-if="formLink.$valid" class="row form-group">
+                      <input type="submit" value="{{'CAR_SOP' | translate}}" class="btn btn-success" ng-click="planTrabajoDocenteCargaDocumentos.crearSolicitud()">
+                    </div>
+                  </form>
                 </div>
               </div>
-
-              <br>
-              
-              <div class="row">
-                <div class="col-md-3">
-                  <label for="observacion" class="col-form-label">{{'OBSER' | translate}}</label>
-                </div>
-                <div class="col-md-6">
-                  <textarea rows="3" cols="50" ng-model="planTrabajoDocenteCargaDocumentos.observaciones"></textarea>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
-
-
       </div>
     </div>
   </div>
+</div>
 
- </div>
+<!-- Modal para visualizar la fecha y el estado de las solicitudes -->
+<div id="modal_ver_solicitud_actividad" class="modal" role="dialog" data-keyboard="false" data-backdrop="static">
+
+  <div class="modal-content col-md-10 col-md-offset-1" style="margin-top: 5%">
+
+    <div class="modal-header">
+      <button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
+      <br>
+    </div>
+
+    <div class="modal-body">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title text-center">{{"SOLICITUDES " +
+            planTrabajoDocenteCargaDocumentos.filaActividad.actividad}}</h3>
+        </div>
+        <div class="panel-body">
+          <loading load="planTrabajoDocenteCargaDocumentos.cargandoDocumentos" tam="4"></loading>
+          <div ng-if="!planTrabajoDocenteCargaDocumentos.cargandoDocumentos" style="height: {{gridHeight}}px;width:{{gridWidth}}px"
+            ui-grid="planTrabajoDocenteCargaDocumentos.gridOptions2" class="mi-grid" id="mi-grid" ui-grid-selection
+            ui-grid-auto-resize></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal en el que se visualizan los soportes asociados a una actividad -->
+<div ng-if="planTrabajoDocenteCargaDocumentos.abrir" id="modal_ver_soportes" class="modal fade" role="dialog">
+  <div class="modal-content col-md-6 col-md-offset-3" style="margin-top: 5%" align="center">
+
+    <div class="modal-header">
+      <button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
+      <br>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{'VER_SOP' | translate}}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-12 col-lg-12">
+              <p>{{'PARRA_VER_SOP_PLAN' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="col-md-12" ng-model="planTrabajoDocenteCargaDocumentos.documentos">
+            <md-card md-theme="{{ showDarkTheme ? 'dark-purple' : 'default' }}" md-theme-watch>
+              <md-card-title>
+                <md-card-title-text>
+                  <span class="md-headline">{{planTrabajoDocenteCargaDocumentos.documentos[planTrabajoDocenteCargaDocumentos.index].nombreArchivo}}</span>
+                  <span class="md-subhead">{{planTrabajoDocenteCargaDocumentos.documentos[planTrabajoDocenteCargaDocumentos.index].fechaCreacion}}</span>
+                  <span class="md-subhead">{{planTrabajoDocenteCargaDocumentos.documentos[planTrabajoDocenteCargaDocumentos.index].descripcion}}</span>
+                </md-card-title-text>
+                <md-card-title-media>
+                  <div class="md-media-sm card-media"></div>
+                </md-card-title-media>
+              </md-card-title> 
+              <md-card-content>
+                <span class="md-subhead">Observaciones sobre el documento:</span>
+                <md-switch class="md-primary" ng-model="planTrabajoDocenteCargaDocumentos.checkObservaciones" ng-change="planTrabajoDocenteCargaDocumentos.cambiarObservaciones()">Mis observaciones / Observaciones del supervisor</md-switch>
+                <md-input>
+                    <textarea ng-model="planTrabajoDocenteCargaDocumentos.observacionesDoc" disabled rows='3' cols='50'></textarea>
+                </md-input> 
+              </md-card-content> 
+              <md-card-actions layout="row" layout-align="end center">
+                <md-button ng-if="planTrabajoDocenteCargaDocumentos.fila_seleccionada.tipo === 'Archivo'" ng-click="planTrabajoDocenteCargaDocumentos.visualizar_enlace(planTrabajoDocenteCargaDocumentos.documentos[planTrabajoDocenteCargaDocumentos.index].blobUrl)" class="md-primary">VER DOCUMENTO</md-button>
+                <md-button ng-if="planTrabajoDocenteCargaDocumentos.fila_seleccionada.tipo === 'Enlace'"  ng-click=" planTrabajoDocenteCargaDocumentos.visualizar_enlace(fplanTrabajoDocenteCargaDocumentos.documentos[planTrabajoDocenteCargaDocumentos.index].enlace) ">VER DOCUMENTO</md-button>
+              </md-card-actions>
+            </md-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

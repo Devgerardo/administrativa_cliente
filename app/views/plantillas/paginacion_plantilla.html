@@ -1,0 +1,30 @@
+<div
+  class="ui-grid-pager-panel"
+  ui-grid-pager
+  ng-show="grid.options.enablePaginationControls">
+  <div
+    role="navigation"
+    class="ui-grid-pager-container">
+    <div
+      class="ui-grid-pager-control">
+      <button
+        type="button"
+        class="ui-grid-pager-previous"
+        ui-grid-one-bind-title="aria.pageBack"
+        ui-grid-one-bind-aria-label="aria.pageBack"
+        ng-click="pagePreviousPageClick()"
+        ng-disabled="cantPageBackward()">
+        <div ng-class="grid.isRTL() ? 'last-triangle prev-triangle' : 'first-triangle prev-triangle'"></div>
+      </button>
+      <button
+        type="button"
+        class="ui-grid-pager-next"
+        ui-grid-one-bind-title="aria.pageForward"
+        ui-grid-one-bind-aria-label="aria.pageForward"
+        ng-click="pageNextPageClick()"
+        ng-disabled="cantPageForward()">
+        <div ng-class="grid.isRTL() ? 'first-triangle next-triangle' : 'last-triangle next-triangle'"></div>
+      </button>
+    </div>
+  </div>
+</div>

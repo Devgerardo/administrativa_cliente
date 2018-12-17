@@ -1,107 +1,135 @@
 <div class="panel panel-default">
-        <div class="panel panel-primary panel-body">
-          <!--Cabecera del panel-->
-          <h2 class="page-header text-center">{{ 'TITULO_REV_COO' | translate}}</h2>
-      
-        <div class="panel-body">
-          <div class="row">
-            <div class="panel panel-default col-lg-10 col-lg-offset-1">
-              <div class="panel-body">
-                <form role="form">
-                  <div class="row">
-      
-                    <div class="form-group col-lg-6">
-                      <label>{{'NOM_COOR' | translate}}</label>
-                      <input type="text" class="form-control" ng-model="aprobacionCoordinador.nombre_coordinador" disabled>
-                    </div>
-      
-                    <div class="form-group col-lg-6">
-                      <label>{{'PRO_CURR' | translate}}</label>
-                      <select class="form-control" required="" ng-model="aprobacionCoordinador.coordinador" class="form-control">
-                        <option value="">---Seleccione el proyecto curricular---</option>
-                        <option ng-repeat="iProyec in aprobacionCoordinador.proyectos_coordinador" ng-value="iProyec">{{iProyec.nombre_proyecto_curricular}}</option>
-                      </select>
-                    </div>
-      
-      
-      
-                  <div class="col-md-3">
-                      <label>{{'SEMESTRE' | translate }}</label>
-                      <select class="form-control" ng-model="aprobacionCoordinador.mes" ng-options="option.Nombre for option in aprobacionCoordinador.meses">
-                            <option value="">--Seleccione el semestre del año--</option>
-                      </select>
-                    </div>
-      
-      
-                    <div class="col-md-3">
-                      <label>{{'ANO' | translate }}</label>
-                      <select ng-model="aprobacionCoordinador.anio" class="form-control">
-                        <option value="">---Seleccione el año---</option>
-                        <option ng-repeat="iAnio in aprobacionCoordinador.anios" ng-value="iAnio">{{iAnio}} </option>
-                      </select>
-                    </div>
-      
-                    
-            </div>
-      
+  <div class="panel panel-primary panel-body">
+    <!--Cabecera del panel-->
+    <h2 class="page-header text-center">{{ 'TITULO_REV_COO' | translate}}</h2>
+    <loading load="aprobacionCoordinadorPlanTrabajo.cargando" tam="4"></loading>
+    <div class="panel-body" ng-if="!aprobacionCoordinadorPlanTrabajo.cargando">
+      <div class="row">
+        <div class="panel panel-default col-lg-10 col-lg-offset-1">
+          <div class="panel-body">
+            <form role="form">
+              <div class="row">
+                <div class="col-md-4">
+                  <label>{{'SELECCIONE EL PERIODO'}}</label>
+                </div>
+                <div ng-if="aprobacionCoordinadorPlanTrabajo.proyectosCoordinador.length > 1" class="col-md-4">
+                  <label>{{'SELECCIONE EL PROYECTO'}}</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <select ng-model="aprobacionCoordinadorPlanTrabajo.periodoSeleccionado" class="form-control"
+                    ng-options="periodo.nombre as periodo.nombre for periodo in aprobacionCoordinadorPlanTrabajo.periodos"></select>
+                </div>
+                <div ng-if="aprobacionCoordinadorPlanTrabajo.proyectosCoordinador.length > 1" class="col-md-4">
+                  <select ng-model="aprobacionCoordinadorPlanTrabajo.proyectoSeleccionado" class="form-control"
+                    ng-options="proyecto.codigo as proyecto.nombre for proyecto in aprobacionCoordinadorPlanTrabajo.proyectosCoordinador"></select>
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-success" ng-click="aprobacionCoordinadorPlanTrabajo.cargarDocentes()">{{'CONSULATAR
+                    SOLICITUDES'}}</button>
+                </div>
+              </div>  
+
               <br><br>
               <form>
-                  <h1>{{flag}}</h1>
-                <div style="height: {{gridHeight}}px;" ui-grid="aprobacionCoordinadorPlanTrabajo.gridOptions1" align='center' ui-grid-auto-resize></div>
+                <loading load="aprobacionCoordinadorPlanTrabajo.cargando" tam="4"></loading>
+                <!-- style="height: {{gridHeight}}px;" -->
+                <div 
+                  ng-if="!aprobacionCoordinadorPlanTrabajo.cargando"  ui-grid="aprobacionCoordinadorPlanTrabajo.gridOptions1" align='center'
+                  ui-grid-auto-resize ui-grid-selection ui-grid-pagination>
+                </div>
               </form>
-              </div>
-            </div>
           </div>
         </div>
-      
       </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Modal para visualizar la fecha y el estado de las solicitudes -->
+<div id="modal_ver_solicitudes_docente" class="modal" role="dialog" data-keyboard="false" data-backdrop="static">
+
+  <div class="modal-content col-md-10 col-md-offset-1" style="margin-top: 5%">
+
+    <div class="modal-header">
+      <button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
+      <br>
+    </div>
+    <div class="modal-body">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title text-center">{{"SOLICITUDES DE " +
+            aprobacionCoordinadorPlanTrabajo.fila_seleccionada.nombre}}</h3>
         </div>
-      
-      
-        <!--Modal de Visualizar los Soportes-->
-        <div id="modal_ver_soportes" class="modal fade" role="dialog">
-          <div class="modal-content col-md-6 col-md-offset-3" style="margin-top: 5%" align="center">
-      
-            <div class="modal-header">
-              <button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
-              <br>
-            </div>
-      
-            <div class="modal-body">
-      
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <h3 class="panel-title">{{'VER_SOP' | translate}}</h3>
-                </div>
-                <div class="panel-body">
-      
-                  <div class="col-md-12">
-                    <p>{{'PARRA_VER_SOP_PLAN' | translate }}</p>
-                  </div>
-      
-                  <div class="col-md-12" ng-model="aprobacionCoordinador.documentos" ng-repeat="iDoc in aprobacionCoordinador.documentos">
-                    <md-card >
-                      <md-card-title>
-                        <md-card-title-text>
-                          <span class="md-headline"> {{iDoc.Contenido.NombreArchivo}}</span>
-                          <span class="md-subhead">{{iDoc.Descripcion}}</span>
-      
-                        </md-card-title-text>
-                        <md-card-title-media>
-                          <!-- <div class="md-media-sm card-media"><textarea ng-model="iDoc.Contenido.Observaciones"></textarea></div> -->
-                        <label layout="row" layout-align="start"  >Observaciones: </label> <textarea  layout="row" layout-align="start center" cols="30" ng-model="iDoc.Contenido.Observaciones"></textarea>
-                        </md-card-title-media>
-                      </md-card-title>
-                      <md-card-actions layout="row" layout-align="end center">
-                        <md-button ng-if="iDoc.Contenido.Tipo === 'Archivo'" ng-click="aprobacionCoordinador.getDocumento(iDoc.Contenido.IdNuxeo)" class="btn btn-primary btn-outline">Ver documento</md-button>
-                        <md-button ng-if="iDoc.Contenido.Tipo === 'Enlace'" ng-click="aprobacionCoordinador.getDocumento(iDoc.Contenido.IdNuxeo); aprobacionCoordinador.visualizar_enlace(iDoc.Contenido.Enlace)" class="btn btn-primary btn-outline">Ver documento</md-button>
-                        <md-button class="btn btn-danger btn-outline" ng-click="aprobacionCoordinador.enviar_comentario(iDoc)">Enviar observaciones</md-button>
-                      </md-card-actions>
-                    </md-card>
-                  </div>
-                </div>
-              </div>
+        <loading load="aprobacionCoordinadorPlanTrabajo.cargandoSolicitudesDocente" tam="4"></loading>
+        <div ng-if="!aprobacionCoordinadorPlanTrabajo.cargandoSolicitudesDocente" class="panel-body">
+          <div ui-grid="aprobacionCoordinadorPlanTrabajo.gridOptions2" class="mi-grid" id="mi-grid" ui-grid-selection
+            ui-grid-auto-resize></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal en el que se visualizan los soportes asociados a una actividad -->
+<div id="modal_ver_soportes" class="modal fade" role="dialog">
+  <div class="modal-content col-md-6 col-md-offset-3" style="margin-top: 5%" align="center">
+
+    <div class="modal-header">
+      <button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
+      <br>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{'VER_SOP' | translate}}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-12 col-lg-12">
+              <p>{{'PARRA_VER_SOP_PLAN' | translate }}</p>
+              <p>{{aprobacionCoordinadorPlanTrabajo.fila_seleccionada.tipo}}</p>
             </div>
           </div>
+
+          <div class="col-md-12" ng-model="aprobacionCoordinadorPlanTrabajo.documentos">
+            <md-card md-theme="{{ showDarkTheme ? 'dark-purple' : 'default' }}" md-theme-watch>
+              <md-card-title>
+                <md-card-title-text>
+                  <span class="md-headline">{{aprobacionCoordinadorPlanTrabajo.solicitudes[aprobacionCoordinadorPlanTrabajo.index].nombreArchivo}}</span>
+                  <span class="md-subhead">{{aprobacionCoordinadorPlanTrabajo.solicitudes[aprobacionCoordinadorPlanTrabajo.index].fechaCreacion}}</span>
+                  <span class="md-subhead">{{aprobacionCoordinadorPlanTrabajo.solicitudes[aprobacionCoordinadorPlanTrabajo.index].descripcion}}</span>
+                </md-card-title-text>
+                <md-card-title-media>
+                  <div class="md-media-sm card-media"></div>
+                </md-card-title-media>
+              </md-card-title>
+              <md-card-content>
+                <span class="md-subhead">Observaciones sobre el documento:</span>
+                <md-switch class="md-primary" ng-model="aprobacionCoordinadorPlanTrabajo.checkObservaciones" ng-change="aprobacionCoordinadorPlanTrabajo.cambiarObservaciones()">
+                  Observaciones del docente / Mis observaciones</md-switch>
+                <md-input>
+                  <textarea ng-model="aprobacionCoordinadorPlanTrabajo.observacionesDoc" ng-disabled="aprobacionCoordinadorPlanTrabajo.checkObservaciones" rows='3' cols='50'></textarea>
+                </md-input>
+              </md-card-content>
+              <md-card-actions layout="row" layout-align="end center">
+                <md-button ng-if="aprobacionCoordinadorPlanTrabajo.fila_seleccionada.tipo === 'Archivo'" ng-click="aprobacionCoordinadorPlanTrabajo.visualizar_enlace(aprobacionCoordinadorPlanTrabajo.solicitudes[aprobacionCoordinadorPlanTrabajo.index].blobUrl)"
+                  class="md-primary">VER DOCUMENTO</md-button>
+                <md-button ng-if="aprobacionCoordinadorPlanTrabajo.fila_seleccionada.tipo === 'Enlace'" ng-click=" aprobacionCoordinadorPlanTrabajo.visualizar_enlace(aprobacionCoordinadorPlanTrabajo.solicitudes[aprobacionCoordinadorPlanTrabajo.index].enlace) ">VER
+                  DOCUMENTO</md-button>
+                  <md-button ng-if="aprobacionCoordinadorPlanTrabajo.observacionesDoc" class="btn btn-danger btn-outline" ng-click="aprobacionCoordinadorPlanTrabajo.enviar_comentario()">Enviar observaciones</md-button>
+              </md-card-actions>
+            </md-card>
+          </div>
         </div>
-      
+      </div>
+    </div>
+  </div>
+</div>

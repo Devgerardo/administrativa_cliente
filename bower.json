@@ -9,7 +9,7 @@
     "angular-resource": "^1.6.10",
     "angular-route": "^1.6.10",
     "angular-touch": "^1.6.10",
-    "angular-ui-grid": "*",
+    "angular-ui-grid": "*", 
     "AngularJS-OAuth2": "angularjs-oauth2#^1.2.1",
     "angular-material": "*",
     "angular-tree-control": "*",

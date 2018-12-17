@@ -59,7 +59,9 @@ angular
         'contratoService',
         'gridOptionsService',
         'configuracionService',
-        'requestService'
+        'requestService',
+        //'planTrabajoService'
+        //'planTrabajoMidService',
     ])
     .run(function(amMoment) {
         amMoment.changeLocale('es');
@@ -275,6 +277,11 @@ angular
               templateUrl: 'views/seguimientoycontrol/plan_trabajo_docente/aprobacion_coordinador_plan_trabajo.html',
               controller: 'SeguimientoycontrolPlanTrabajoDocenteAprobacionCoordinadorPlanTrabajoCtrl',
               controllerAs: 'aprobacionCoordinadorPlanTrabajo'
+            })
+            .when('/seguimientoycontrol/plan_trabajo_docente/aprobacion_decano', {
+              templateUrl: 'views/seguimientoycontrol/plan_trabajo_docente/aprobacion_decano.html',
+              controller: 'SeguimientoycontrolPlanTrabajoDocenteAprobacionDecanoCtrl',
+              controllerAs: 'aprobacionDecanoPlanTrabajo'
             })
             .otherwise({
                 redirectTo: '/'

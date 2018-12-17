@@ -192,13 +192,17 @@ angular.module('contractualClienteApp')
     */
     self.obtener_informacion_coordinador = function (documento) {
       //Se realiza petición a servicio de academica que retorna la información del coordinador
+      self.cargando =true;
       academicaWsoService.get('coordinador_carrera_snies', documento).
         then(function (response) {
           self.informacion_coordinador = response.data;
         //  self.coordinador = self.informacion_coordinador.coordinadorCollection.coordinador[0];
           self.proyectos_coordinador = self.informacion_coordinador.coordinadorCollection.coordinador;
           self.nombre_coordinador = self.informacion_coordinador.coordinadorCollection.coordinador[0].nombre_coordinador;
-        })
+          self.cargando =true;
+        }).catch(function(){
+
+        });
     };
 
     /**/
