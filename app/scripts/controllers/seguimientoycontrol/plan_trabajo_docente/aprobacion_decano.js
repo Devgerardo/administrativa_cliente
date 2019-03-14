@@ -129,18 +129,12 @@ angular.module('contractualClienteApp')
       ]
     };
 
-
     self.cargarDependencias = function(){
       coreAmazonRequest.get("jefe_dependencia/?TerceroId:1234567892")
       .then(function(dependeciasResp){
         self.dependencias = dependeciasResp;
-      })
-
-      
+      })      
     }
-
-
-
 
     self.dimensionarGrilla = function (parametro) {
       //console.log("dimensionar");
@@ -271,13 +265,13 @@ angular.module('contractualClienteApp')
 
 
     /**
-           * 
-           * 
-           * 
-           * 
-           * 
-           *  
-          */
+     * 
+     * 
+     * 
+     * 
+     * 
+     *  
+    */
     self.cargarSolicitudesDocente = function (fila) {
 
       self.cargandoSolicitudesDocente = true;

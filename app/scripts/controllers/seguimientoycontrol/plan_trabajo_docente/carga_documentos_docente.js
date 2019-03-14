@@ -9,7 +9,7 @@
  */
 angular.module('contractualClienteApp')
 
-  .controller('SeguimientoycontrolPlanTrabajoDocenteCargaDocumentosDocenteCtrl', function ($scope, $http, $translate, uiGridConstants, administrativaRequest, nuxeoClient, $q, coreRequest, $window, $sce, academicaWsoService, $interval, $timeout, planTrabajoService) {
+  .controller('SeguimientoycontrolPlanTrabajoDocenteCargaDocumentosDocenteCtrl', function ($scope, $http, $translate, uiGridConstants, administrativaRequest, nuxeoClient, coreRequest, $window, academicaWsoService, $interval, $timeout, planTrabajoService, planTrabajoMidService) {
     //Variable de template que permite la edición de las filas de acuerdo a la condición ng-if
     var tmpl = '<div ng-if="!row.entity.editable">{{COL_FIELD}}</div><div ng-if="row.entity.editable"><input ng-model="MODEL_COL_FIELD"</div>';
 
@@ -31,8 +31,8 @@ angular.module('contractualClienteApp')
     self.observacionesDocTemp;
   
 
-    self.Documento = 93401747;
-    self.dependencias = [];
+    self.Documento = token_service.getAppPayload().appUserDocument;
+    self.proyectosCurriculares = [];
     self.anio;
     self.periodo;
     self.pasoCadena = 0;
@@ -62,15 +62,18 @@ angular.module('contractualClienteApp')
       columnDefs: [{
         name: 'actividad',
         displayName: $translate.instant('ACTIVIDAD')
-
       },
       {
         name: 'cod_proyecto',
-        displayName: 'IdProyecto',
+        //displayName: 'IdProyecto',
         visible: false
       },
       {
         name: 'cod_actividad',
+        visible: false
+      },
+      {
+        name: 'cur_id',
         visible: false
       },
       {
@@ -221,7 +224,6 @@ angular.module('contractualClienteApp')
     /**
     * @ngdoc method
     * @name cargarActividades
-    * @methodOf 
     * @description
     * Función que con la cedula del docente y el semestre busca en la base de datos las actividades que este
     * tiene asociadas y con ellas llena un ui-grid, en caso de no encontrars actividades se muestra una alerta.
@@ -235,20 +237,24 @@ angular.module('contractualClienteApp')
         self.periodo = arregloPeriodo[1];
 
         self.cargando = true;
-        academicaWsoService.get('consulta_plan_trabajo', "79396653/" + semestre)
+        academicaWsoService.get('consulta_plan_trabajo', self.Documento + "/" + semestre)
           //academicaWsoService.get('consulta_plan_trabajo', "93401747/2017/3")
           .then(function (response) {
             if (response.data.planCollection.plan != null && response.data.planCollection.plan != undefined) {
               self.actividades = response.data.planCollection.plan;
+              // angular.forEach(self.actividades, function (actividad) {
+              //   if(actividad.cod_asignatura !== 0){
+              //     actividad.cod_actividad = actividad.cur_id;
+              //   }
+              // });
               self.gridOptions1.data = self.actividades;
               self.cargando = false;
               //delete self.seleccionado;
               self.actividades.forEach(function (actividad) {
-                if (actividad.cod_proyecto !== '0' && !self.dependencias.includes(actividad.cod_proyecto)) {
-                  self.dependencias.push(actividad.cod_proyecto);
+                if (actividad.cod_proyecto !== '0' && !self.proyectosCurriculares.includes(actividad.cod_proyecto)) {
+                  self.proyectosCurriculares.push(actividad.cod_proyecto);
                 }
               });
-              console.log(self.dependencias);
             } else {
               swal(
                 'Error',
@@ -264,6 +270,7 @@ angular.module('contractualClienteApp')
               "No se pudo cargar las actividades",
               'warning'
             );
+            self.cargando = false;
           });
       }
     };
@@ -272,7 +279,7 @@ angular.module('contractualClienteApp')
     * @ngdoc function
     * @name crear_solicitudResp_soporte
     * @description
-    * Método que implementa la logica necesaria para hacer las solicitudRespes de revision por cada una de las
+    * Método que implementa la logica necesaria para hacer las solicitudRespuesta de revision por cada una de las
     * organizaciones a las que corresponde la actividad
     *
     * 
@@ -281,19 +288,36 @@ angular.module('contractualClienteApp')
 
       self.organizacion = [];
 
-      if (self.filaActividad.cod_proyecto !== '0') {
-        self.organizacion[0] = self.filaActividad.cod_proyecto;
-      } else {
-        self.organizacion = self.dependencias;
-      }
+      planTrabajoMidService.get("/solicitud_soporte_plan_trabajo/obtener_supervisor_actividad/", $.param({
+        actividad: self.filaActividad.cod_actividad
+      }))
+      .then(function(supervisorResp){
+        if (self.filaActividad.cod_proyecto !== '0') {//es carga lectiva y si esta asociada a un proyecto
+          self.organizacion[0] = self.filaActividad.cod_proyecto;
+        } else {
+          if(supervisorResp == "coordinador"){
+            self.organizacion = self.proyectosCurriculares;
+          }
+          
+        }
+  
+        for (let i = 0; i < self.organizacion.length; i++) {
+          var intTemp = + self.organizacion;
+          self.subir_documento(intTemp);
+        }
+      })
+      .catch(function(error){
+        swal(
+          'Error',
+          $translate.instant('No se pudo crear la solicitud'),
+          'error'
+        );
+      })
 
-      for (let i = 0; i < self.organizacion.length; i++) {
-        var intTemp = + self.organizacion;
-        self.subir_documento(intTemp);
-      }
+      
 
+    
       //$scope.limpiarArchivo();
-
     }
 
     /*
@@ -362,27 +386,30 @@ angular.module('contractualClienteApp')
             //Post a la tabla documento del core
             coreRequest.post('documento', self.objeto_documento)
               .then(function (response) {
-                console.log(response);
+                //console.log(response);
                 self.id_documento = response.data.Id;
                 return self.id_documento;
               })
               .then(function (documentoResp) {
-                console.log(documentoResp);
+                //console.log(documentoResp);
+                var fecha = new Date();
                 self.objeto_solicitudResp = {
-                  "Estado": { "id": 1 },
+                  "Estado": { "id": 1 },//estado: documento guardado
                   "Persona": self.Documento,
                   //"Id":0,
-                  "Organizacion": Number(organizacion),
+                  "Dependencia": Number(organizacion),
                   "Documento": documentoResp,
                   "Observaciones": "",
                   "Anio": Number(self.anio),
                   "Periodo": Number(self.periodo),
                   "Actividad": Number(self.filaActividad.cod_actividad),
+                  "Fecha": fecha,
+                  "Grupo": Number(self.filaActividad.cur_id)
                 }
                 return planTrabajoService.post('solicitud_soporte_plan_trabajo', self.objeto_solicitudResp);
               })
               .then(function (solicitudResp) {
-                console.log(solicitudResp);
+                //console.log(solicitudResp);
                 swal(
                   $translate.instant('EL ARCHIVO HA SIDO GUARDADO'),
                   'success'
@@ -406,11 +433,9 @@ angular.module('contractualClienteApp')
             $translate.instant('DEBE_SUBIR_ARCHIVO'),
             'error'
           );
-
           self.mostrar_boton = true;
 
         }
-        //
       } else if (self.link) {
         if (self.enlace !== undefined) {
           var descripcion = "soporte de la actividad: " + self.filaActividad.actividad;
@@ -439,6 +464,7 @@ angular.module('contractualClienteApp')
               return self.id_documento;
             })
             .then(function (documento) {
+              var fecha = new Date();
               self.objeto_solicitudResp = {
                 "Estado": { "id": 1 },
                 "Persona": self.Documento,
@@ -449,6 +475,8 @@ angular.module('contractualClienteApp')
                 "Anio": Number(self.anio),
                 "Periodo": Number(self.periodo),
                 "Actividad": Number(self.filaActividad.cod_actividad),
+                "Fecha": fecha,
+                "Grupo":  Number(self.filaActividad.cur_id)
               }
               return planTrabajoService.post('solicitud_soporte_plan_trabajo', self.objeto_solicitudResp);
             })

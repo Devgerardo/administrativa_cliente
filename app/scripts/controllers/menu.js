@@ -161,7 +161,7 @@ angular.module('contractualClienteApp')
             token_service.token.role.pop();
             var roles = token_service.token.role.toString();
             //var e_roles = roles.replace(',', '%2C');
-            configuracionRequest.get('menu_opcion_padre/ArbolMenus/' + roles + '/Argo', '').then(function(response) {
+            configuracionRequest.get('menu_opcion_padre/ArbolMenus/' + roles + '/Plan_trabajo_docente', '').then(function(response) {
                
                 $rootScope.my_menu = response.data;
                 /*configuracionRequest.update_menu(https://10.20.0.162:9443/store/apis/authenticate response.data);
@@ -198,7 +198,7 @@ angular.module('contractualClienteApp')
                     break;
             }
         };
-
+        //se recorre para nada nohace nada para con la respuesta
         recorrerArbol($scope.menu_service, "");
         paths.push({ padre: ["", "Notificaciones", "Ver Notificaciones"], path: "notificaciones" });
 

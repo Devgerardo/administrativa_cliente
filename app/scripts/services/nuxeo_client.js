@@ -215,8 +215,8 @@ angular.module('contractualClienteApp')
             deleteDocument: function (dominio,uid) {
                 var defer = $q.defer();
                 nuxeo.connect().then(function (client) {
-                nuxeo.operation('Document.delete')
-                    .input('/default-domain/workspaces/'+dominio+'/'+uid)
+                nuxeo.operation('Document.Delete')
+                    .input(uid)
                     .execute()
                     .then(function (responseBlob) {
                         defer.resolve(responseBlob);
