@@ -1,87 +1,130 @@
 <!--<div class="panel panel-primary panel-body">-->
 
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <div class="row">
-        <div class="col-md-12">
-          <h3 class="page-header">{{ 'NECESIDAD' | translate }} {{d_visualizarNecesidad.v_necesidad.NumeroElaboracion}} {{"DE" | translate}} {{d_visualizarNecesidad.v_necesidad.Vigencia}}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="row">
+      <div class="col-md-12">
+        <h3 class="page-header">{{ 'NECESIDAD' | translate }} <span ng-show="estado === d_visualizarNecesidad.estados.aprobada">{{d_visualizarNecesidad.v_necesidad.Numero}}
+            {{"DE" | translate}} {{d_visualizarNecesidad.v_necesidad.Vigencia}}</span>
           <span class="pull-right text-info">{{d_visualizarNecesidad.v_necesidad.EstadoNecesidad.Nombre}}</span></h3>
-        </div>
-
-        <div class="col-md-7"><span>{{"MODALIDAD_SELECCION" | translate}}: {{d_visualizarNecesidad.v_necesidad.ModalidadSeleccion.Nombre}}</span> </div>
-        <div class="col-md-5" align="right"><span>{{d_visualizarNecesidad.v_necesidad.FechaSolicitud | date:'dd-MMM-yyyy'}}</span></div>
       </div>
 
+      <div class="col-md-7"><span>{{"MODALIDAD_SELECCION" | translate}}:
+          {{d_visualizarNecesidad.v_necesidad.ModalidadSeleccion.Nombre}}</span> </div>
+      <div class="col-md-5" style="text-align: center"><span>{{d_visualizarNecesidad.v_necesidad.FechaSolicitud |
+          date:'dd-MMM-yyyy'}}</span></div>
     </div>
-    <div class="panel-body">
 
-      <cite class="text-info pull-right">{{"NUMERO_ELABORACION" | translate}}: {{d_visualizarNecesidad.v_necesidad.NumeroElaboracion}}</cite>
+  </div>
+  <div class="panel-body">
+    <div class="text-info pull-right text-right">
+      <cite class=""> {{d_visualizarNecesidad.v_necesidad.NumeroElaboracion || '-'}}</cite><br>
+      <cite class=""> {{d_visualizarNecesidad.v_necesidad.Numero || '-'}}</cite><br>
+      <cite class=""> {{d_visualizarNecesidad.solicitud_disponibilidad.Numero || '-'}}</cite>
+    </div>
+    <div class="text-info pull-right">
+      <cite class="">{{"NUMERO_ELABORACION_NECESIDAD" | translate}}: </cite><br>
+      <cite class="">{{"NUMERO_NECESIDAD_COMPACTO" | translate}}: </cite><br>
+      <cite class="">{{"NUMERO_SOLICITUD_NECESIDAD" | translate}}: </cite>
+    </div>
 
 
-      <h3 class="text-info">{{"RESPONSABLES" | translate}}</h3>
-      <p class="text-muted text-justify">
-        <table class="table-condensed table table-hover">
+    <h3 class="text-info">{{"RESPONSABLES" | translate}}</h3>
+    <p class="text-muted text-justify">
+      <table class="table-condensed table table-hover">
         <tr>
-        <td><strong>{{"DEPENDENCIA_SOLICITANTE" | translate}}:</strong></td><td> {{d_visualizarNecesidad.dependencia_solicitante.Nombre}}</td>
-      </tr>
-      <tr>
-        <td><strong>{{"JEFE_DEPENDENCIA_SOLICITANTE" | translate}}:</strong></td><td> {{d_visualizarNecesidad.jefe_dependencia_solicitante.PrimerNombre}} {{d_visualizarNecesidad.jefe_dependencia_solicitante.SegundoNombre}} {{d_visualizarNecesidad.jefe_dependencia_solicitante.PrimerApellido}} {{d_visualizarNecesidad.jefe_dependencia_solicitante.SegundoApellido}}</td>
+          <td><strong>{{"DEPENDENCIA_SOLICITANTE" | translate}}:</strong></td>
+          <td> {{d_visualizarNecesidad.dependencia_solicitante.Nombre}}</td>
         </tr>
         <tr>
-        <td><strong>{{"DEPENDENCIA_DESTINO" | translate}}:</strong></td> <td>{{d_visualizarNecesidad.dependencia_destino.Nombre}}</td>
+          <td><strong>{{"JEFE_DEPENDENCIA_SOLICITANTE" | translate}}:</strong></td>
+          <td> {{d_visualizarNecesidad.jefe_dependencia_solicitante.PrimerNombre}}
+            {{d_visualizarNecesidad.jefe_dependencia_solicitante.SegundoNombre}}
+            {{d_visualizarNecesidad.jefe_dependencia_solicitante.PrimerApellido}}
+            {{d_visualizarNecesidad.jefe_dependencia_solicitante.SegundoApellido}}</td>
         </tr>
         <tr>
-        <td><strong>{{"JEFE_DEPENDENCIA_DESTINO" | translate}}:</strong> </td><td>{{d_visualizarNecesidad.jefe_dependencia_destino.PrimerNombre}} {{d_visualizarNecesidad.jefe_dependencia_destino.SegundoNombre}} {{d_visualizarNecesidad.jefe_dependencia_destino.PrimerApellido}} {{d_visualizarNecesidad.jefe_dependencia_destino.SegundoApellido}}</td>
+          <td><strong>{{"DEPENDENCIA_DESTINO" | translate}}:</strong></td>
+          <td>{{d_visualizarNecesidad.dependencia_destino.Nombre}}</td>
         </tr>
         <tr>
-        <td><strong>{{"ORDENADOR_GASTO" | translate}}:</strong> </td><td>{{d_visualizarNecesidad.ordenador_gasto.PrimerNombre}} {{d_visualizarNecesidad.ordenador_gasto.SegundoNombre}} {{d_visualizarNecesidad.ordenador_gasto.PrimerApellido}} {{d_visualizarNecesidad.ordenador_gasto.SegundoApellido}}</td>
+          <td><strong>{{"JEFE_DEPENDENCIA_DESTINO" | translate}}:</strong> </td>
+          <td>{{d_visualizarNecesidad.jefe_dependencia_destino.PrimerNombre}}
+            {{d_visualizarNecesidad.jefe_dependencia_destino.SegundoNombre}}
+            {{d_visualizarNecesidad.jefe_dependencia_destino.PrimerApellido}}
+            {{d_visualizarNecesidad.jefe_dependencia_destino.SegundoApellido}}</td>
+        </tr>
+        <tr>
+          <td><strong>{{"ORDENADOR_GASTO" | translate}}:</strong> </td>
+          <td>{{d_visualizarNecesidad.ordenador_gasto.PrimerNombre}}
+            {{d_visualizarNecesidad.ordenador_gasto.SegundoNombre}}
+            {{d_visualizarNecesidad.ordenador_gasto.PrimerApellido}}
+            {{d_visualizarNecesidad.ordenador_gasto.SegundoApellido}}</td>
         </tr>
       </table>
 
-      </p>
+    </p>
+    <div class="row">
+      <div class="col-sm-6">
 
-      <h3 class="text-info">{{"OBJETO_CONTRACTUAL" | translate}}</h3>
+        <h3 class="text-info">{{"OBJETO_CONTRACTUAL" | translate}}</h3>
         <p class="text-muted text-justify">
           {{d_visualizarNecesidad.v_necesidad.Objeto}}
         </p>
-      <h3 class="text-info">{{"FINANCIACION" | translate}}</h3>
-      <p class="text-muted text-justify" >
-        Por {{d_visualizarNecesidad.v_necesidad.TipoFinanciacionNecesidad.Nombre}} de <strong>{{d_visualizarNecesidad.v_necesidad.Valor | currency}}</strong>
-        <ul ng-repeat="inv in d_visualizarNecesidad.ff_necesidad track by $index">
-          <strong>{{inv.Apropiacion.Rubro.Codigo}}</strong> {{inv.Apropiacion.Rubro.Nombre}}
-          <li ng-repeat='f in inv.Fuentes'>
-          {{f.FuenteFinanciamiento.Nombre}} <strong>{{"Monto" | translate}}:</strong> {{f.MontoParcial | currency}}
-        </li>
-      </ul>
-      </p>
+        <h3 class="text-info">{{"FINANCIACION" | translate}}</h3>
+        <p class="text-muted text-justify">
+          Por {{d_visualizarNecesidad.v_necesidad.TipoFinanciacionNecesidad.Nombre}} de <strong>{{d_visualizarNecesidad.v_necesidad.Valor
+            | currency}}</strong>
+          <ul ng-repeat="inv in d_visualizarNecesidad.ff_necesidad track by $index">
+            <strong>{{inv.Apropiacion.Rubro.Codigo}}</strong> {{inv.Apropiacion.Rubro.Nombre}}
+            <li ng-repeat='f in inv.Fuentes'>
+              {{f.InfoFuente[0].Nombre}} <strong>{{"Monto" | translate}}:</strong> {{f.MontoParcial | currency}}
+            </li>
+            <br><strong ng-if="inv.Productos.length">{{"PRODUCTOS" | translate}}</strong>
+            <li ng-repeat='p in inv.Productos'>
+              <strong>{{p.ProductoRubroInfo[0].Producto.Nombre}}:</strong>
+              {{p.ProductoRubroInfo[0].Producto.Descripcion}}
+            </li>
+          </ul>
+        </p>
 
-      <h3 class="text-info">{{"JUSTIFICACION_CONTRATO" | translate}}</h3>
-      <p class="text-muted text-justify">
-        {{d_visualizarNecesidad.v_necesidad.Justificacion}}
-      </p>
-      <h3 class="text-info">{{"ANALISIS_RIESGOS" | translate}}</h3>
-      <p class="text-muted text-justify">
-        {{d_visualizarNecesidad.v_necesidad.AnalisisRiesgo}}
-      </p>
-      <h3 class="text-info">{{"ESTUDIO_MERCADO" | translate}}</h3>
-      <p class="text-muted text-justify">
-        {{d_visualizarNecesidad.v_necesidad.EstudioMercado}}
-      </p>
+        <h3 class="text-info">{{"JUSTIFICACION_CONTRATO" | translate}}</h3>
+        <p class="text-muted text-justify">
+          {{d_visualizarNecesidad.v_necesidad.Justificacion}}
+        </p>
+        <h3 class="text-info">{{"ANALISIS_RIESGOS" | translate}}</h3>
+        <p class="text-muted text-justify">
+          {{d_visualizarNecesidad.v_necesidad.AnalisisRiesgo}}
+        </p>
+        <h3 class="text-info">{{"ESTUDIO_MERCADO" | translate}}</h3>
+        <p class="text-muted text-justify">
+          {{d_visualizarNecesidad.v_necesidad.EstudioMercado}}
+        </p>
 
         <h3 class="text-info">{{"MARCO_LEGAL" | translate}}</h3>
         <p class="text-muted text-justify">
           <li ng-repeat="doc in d_visualizarNecesidad.marco_legal track by $index">{{doc.MarcoLegal.NombreDocumento}}</li>
         </p>
-
-
-
-
       </div>
+      <div class="col-sm-6" ng-show="d_visualizarNecesidad.verJustificacion">
+        <h3 class="text-info">{{"NECESIDAD_JUSTIFICACION_RECHAZO" | translate}}</h3>
 
-
+        <p class="text-justify" ng-repeat="justificacion_rechazo in d_visualizarNecesidad.justificaciones_rechazo">
+          <strong>{{"NECESIDAD_FECHA_RECHAZO" | translate}}:</strong>
+          {{justificacion_rechazo.Fecha | date:'dd/MM/yyyy':'UTC' }} <br>
+          <strong>{{"NECESIDAD_JUSTIFICACION_DESCRIPCION_RECHAZO" | translate}}:</strong><br>
+          {{justificacion_rechazo.Justificacion}}
+        </p>
       </div>
     </div>
 
+
+
+
   </div>
 
-<!--</div>-->
+
+</div>
+</div>
+
+</div>

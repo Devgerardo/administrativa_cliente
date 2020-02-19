@@ -1,5 +1,7 @@
 <div class="panel panel-primary panel-body">
-	<h2 class="page-header text-center">{{ 'TITULO_VIN_DOC' | translate }} <br> {{ 'TITULO_RES' | translate }} {{resolucionReduccion.resolucion.Numero}} <br> {{resolucionReduccion.resolucion.Dedicacion}} </h2>
+	<h2 class="page-header text-center">{{ 'TITULO_VIN_DOC' | translate }}
+		<br> {{ 'TITULO_RES' | translate }} {{resolucionReduccion.resolucion.Numero}}
+		<br> {{resolucionReduccion.resolucion.Dedicacion}} </h2>
 
 	<div class="row">
 		<div class="col-md-12">
@@ -9,77 +11,127 @@
 				</div>
 				<br>
 				<div class="col-md-2">
-					<center><label> {{ 'SELECCIONE_PROY' | translate }}</label></center>
+					<center>
+						<label> {{ 'SELECCIONE_PROY' | translate }}</label>
+					</center>
 				</div>
 				<div class="col-md-10">
 					<select class="form-control" ng-model="resolucionReduccion.term" ng-change="resolucionReduccion.get_docentes_vinculados()">
-						<option ng-selected="{{proyecto.Id == resolucionReduccion.defaultSelectedPrecont}}" ng-repeat="proyecto in resolucionReduccion.proyectos" value="{{proyecto.Id}}">{{proyecto.Nombre}}</option>
+						<option value="">{{ 'TODOS_PROY' | translate }}</option>
+						<option ng-selected="{{proyecto.Id == resolucionReduccion.defaultSelectedPrecont}}" ng-repeat="proyecto in resolucionReduccion.proyectos"
+						 value="{{proyecto.Id}}">{{proyecto.Nombre}}</option>
 					</select>
 				</div>
 				<br>
 				<div class="panel-body">
 					<br>
-					<div ui-grid="resolucionReduccion.precontratados" ui-grid-selection ui-grid-pagination class="grid" ng-hide="resolucionReduccion.estado"></div>
-					<center><loading load="resolucionReduccion.estado" tam="5"></loading><center>
-					</div>
-					</div>
+					<div ui-grid="resolucionReduccion.precontratados" ui-grid-selection ui-grid-pagination class="grid"></div>
+					<center>
+						<loading load="resolucionReduccion.estado" tam="5" style="position: absolute; z-index: 10; top:50%;"></loading>
+						<center>
+				</div>
 			</div>
 		</div>
 	</div>
+</div>
 
-	<div id="modal_adicion" class="modal fade" role="dialog">
+<div id="modal_adicion" class="modal fade" role="dialog">
+	<style>
+		.md-datepicker-calendar-pane {
+			z-index: 1200;
+		}
+	</style>
 
-
-
-		<div class="modal-content col-md-10 col-md-offset-1" style="margin-top: 5%">
-			<div class="modal-header">
-				<button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button><br>
-			</div>
-			<div class="modal-body">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h3 class="panel-title">{{ 'TITULO_REDUCCION_HORAS' | translate }}</h3>
-					</div>
-					<div class="panel-body">
-						<form name="formplan" ng-submit="formplan.$valid">
-							<div class="row">
+	<div class="modal-content col-md-10 col-md-offset-1" style="margin-top: 5%">
+		<div class="modal-header">
+			<button type="button" class="btn btn-outline btn-danger btn-xs pull-right" data-dismiss="modal">&times</button>
+			<br>
+		</div>
+		<div class="modal-body">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{ 'TITULO_REDUCCION_HORAS' | translate }}</h3>
+				</div>
+				<div class="panel-body">
+					<form name="formplan" ng-submit="formplan.$valid">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="col-md-2 col-md-offset-1">
+									<label>{{ 'LABEL_HORAS_ACTUALES' | translate }}</label>
+								</div>
+								<div class="col-md-1">
+									<input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.horas_actuales" readonly>
+								</div>
+								<div class="col-md-2">
+									<label>{{ 'LABEL_HORAS_A_REDUCIR' | translate }}</label>
+								</div>
+								<div class="col-md-1">
+									<input type="number" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.horas_a_adicionar" ng-change="resolucionReduccion.Calcular_horas_totales()"
+									 min=1 max={{resolucionReduccion.maximoHorasReducir}} required="">
+								</div>
+								<div class="col-md-2">
+									<label>{{ 'LABEL_HORAS_TOTALES' | translate }}</label>
+								</div>
+								<div class="col-md-1">
+									<input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.horas_totales" readonly>
+								</div>
+							</div>
+							<div ng-show="resolucionReduccion.mostrarSemanas">
 								<div class="col-md-12">
 									<div class="col-md-2 col-md-offset-1">
-										<label>{{ 'LABEL_HORAS_ACTUALES' | translate }}</label>
+										<label>{{ 'LABEL_SEMANAS_ACTUALES' | translate }}</label>
 									</div>
 									<div class="col-md-1">
-										<input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.horas_actuales" readonly>
+										<input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.semanas_actuales" readonly>
 									</div>
 									<div class="col-md-2">
-										<label>{{ 'LABEL_HORAS_A_REDUCIR' | translate }}</label>
+										<label>{{ 'LABEL_SEMANAS_A_REDUCIR' | translate }}</label>
 									</div>
 									<div class="col-md-1">
-										<input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.horas_a_modificar" ng-change="resolucionReduccion.Calcular_horas_totales()" required="">
+										<input type="number" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.semanas_a_adicionar" ng-change="resolucionReduccion.Calcular_semanas_totales()"
+										min=1 max={{resolucionReduccion.maximoSemanasReducir}} required="">
 									</div>
-									<div class="col-md-2">
-										<label>{{ 'LABEL_HORAS_TOTALES' | translate }}</label>
-									</div>
-									<div class="col-md-1">
-										<input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.horas_totales" readonly>
+									<div class="col-md-4">
+										<br>
+										<font size="3" color="red">{{ 'MAXIMO_SUGERIDO' | translate }} {{resolucionReduccion.maximoSemanasSugeridas}}</font>
 									</div>
 								</div>
-								<div class="col-md-12">
+							</div>
+							<div class="col-md-12">
+								<br>
+								<div class="form-group col-lg-4">
+									<label>{{ 'FECHA_INICIO_VALIDA' | translate }}</label>
+									<md-datepicker ng-model="resolucionReduccion.FechaInicio" ng-change="resolucionReduccion.CalculoSemanasRestantes()" md-current-view="year" md-date-filter="validarFecha" md-placeholder="{{'ELEGIR_FECHA' | translate }}"  required></md-datepicker>
+								</div>
+								<div ng-show="resolucionReduccion.mostrarFechaInvalida">
 									<br>
-									<div class="col-md-2 col-md-offset 3">
-										<label>{{ 'LABEL_DISP_ACTUAL' | translate}}</label>
-									</div>
 									<div class="col-md-2">
-										<input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReduccion.disponibilidad_actual" readonly>
+										<font color="red">{{ 'LABEL_FECHA_INVALIDA' | translate }}</font>
 									</div>
-									<div class="col-md-2">
+								</div>
+								<div class="col-md-3">
+									<br>
+									<label>{{ 'SELECCIONAR_RP' | translate }}</label>
+								</div>
+								<div class="col-md-1">
+									<br>
+									<select  ng-model="resolucionReduccion.persona_a_modificar.InformacionRp" >
+										<option ng-repeat="rp in resolucionReduccion.rps" value="{{rp}}">RP:{{rp.rp}}-Vigencia:{{rp.vigencia}}</option>
+									</select> 
+								</div>
+							</div>
+							<div class="col-lg-12">
+								<br>
+								<div ng-show="resolucionReduccion.mostrar_modificar">
+									<div class="col-lg-4 col-lg-offset-4">
 										<input type="submit" class="form-control btn btn-success" value="{{'BTN_MODIFICAR_HORAS' | translate }}" ng-click="resolucionReduccion.realizar_nueva_vinculacion()">
 									</div>
 								</div>
-								<br>
-								</form>
+							</div>
 						</div>
+					</form>
 					</div>
-					</div>
+				</div>
 			</div>
 		</div>
-</div>
+	</div>

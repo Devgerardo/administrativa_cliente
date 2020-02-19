@@ -27,8 +27,10 @@
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
     <link rel="stylesheet" href="styles/estilo-cdve.css">
+    <link rel="stylesheet" href="styles/custom.css">
     <link rel="stylesheet" href="styles/table-demo.css">
     <link rel="stylesheet" href="styles/timeline.css">
+    <link rel="stylesheet" href="styles/loading-bar.css">
     <script type="text/javascript" src="http://visjs.org/dist/vis.js"></script>
     <link href="http://visjs.org/dist/vis.css" rel="stylesheet" type="text/css">
     <!-- endbuild -->
@@ -79,8 +81,8 @@
     <script src="bower_components/angular-messages/angular-messages.js"></script>
     <script src="bower_components/angular-material/angular-material.js"></script>
     <script src="bower_components/angular-tree-control/angular-tree-control.js"></script>
-    <script src="bower_components/pdfmake/build/pdfmake.js"></script>
-    <script src="bower_components/pdfmake/build/vfs_fonts.js"></script>
+    <script src="bower_components/pdfmakeoas/build/pdfmake.js"></script>
+    <script src="bower_components/pdfmakeoas/build/vfs_fonts.js"></script>
     <script src="bower_components/ngstorage/ngStorage.js"></script>
     <script src="bower_components/kjur-jsrsasign/jsrsasign-all-min.js"></script>
     <script src="bower_components/angular-websocket/dist/angular-websocket.js"></script>
@@ -103,6 +105,10 @@
     <script src="bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
     <script src="bower_components/angular-bootstrap-fileinput/angular-bootstrap-fileinput.js"></script>
     <script src="bower_components/nuxeo/dist/nuxeo.js"></script>
+    <script src="bower_components/colombia-holidays/js/holidays.js"></script>
+    <script src="bower_components/lodash/lodash.js"></script>
+    <script src="bower_components/jszip/dist/jszip.js"></script>
+    <script src="bower_components/excel-builder-js/dist/excel-builder.dist.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -132,7 +138,9 @@
 <script src="scripts/directives/catalogos_elementos/lista_subgrupos_catalogos.js"></script>
 <script src="scripts/directives/apropiaciones/lista_apropiaciones.js"></script>
 <script src="scripts/directives/apropiaciones/fuentes_apropiacion.js"></script>
+<script src="scripts/directives/apropiaciones/productos_apropiacion.js"></script>
 <script src="scripts/directives/marco_legal/lista_documentos_legales.js"></script>
+<script src="scripts/directives/reportes/reportes_spagobi.js"></script>
 <script src="scripts/controllers/necesidad/necesidades.js"></script>
 <script src="scripts/directives/necesidad/visualizar_necesidad.js"></script>
 <script src="scripts/controllers/rp/rp_solicitud.js"></script>
@@ -162,7 +170,9 @@
 <script src="scripts/controllers/vinculacionespecial/resolucion_vista.js"></script>
 <script src="scripts/controllers/vinculacionespecial/resolucion_administracion.js"></script>
 <script src="scripts/controllers/vinculacionespecial/resolucion_aprobacion.js"></script>
+<script src="scripts/controllers/vinculacionespecial/resolucion_busqueda_docente.js"></script>
 <script src="scripts/controllers/vinculacionespecial/contrato_resumen.js"></script>
+<script src="scripts/controllers/vinculacionespecial/resolucion_reportes.js"></script>
 <script src="scripts/services/contrato.js"></script>
 <script src="scripts/services/registro.js"></script>
 <script src="scripts/services/disponibilidad.js"></script>
@@ -201,6 +211,31 @@
 <script src="scripts/services/homologacion_dependencia_service.js"></script>
 <script src="scripts/controllers/seguimientoycontrol/tecnico/aprobacion_supervisor.js"></script>
 <script src="scripts/controllers/seguimientoycontrol/tecnico/aprobacion_ordenador.js"></script>
+<script src="scripts/services/grid/gridapi_service.js"></script>
+<script src="scripts/services/utils/pdf_maker.js"></script>
+<script src="scripts/services/utils/pdf_maker_necesidades.js"></script>
+<script src="scripts/services/utils/colombia_holidays.js"></script>
+<script src="scripts/services/utils/nuxeo_client.js"></script>
+<script src="scripts/services/utils/sbisdk-all-production.js"></script>
+<script src="scripts/directives/avances/lista_avances.js"></script>
+<script src="scripts/services/resolucion_service.js"></script>
+<script src="scripts/controllers/necesidad/pdfnecesidad.js"></script>
+<script src="scripts/controllers/necesidad/necesidad_reportes.js"></script>
+<script src="scripts/services/necesidad/necesidad_service.js"></script>
+<script src="scripts/services/roles_service.js"></script>
+
+<script src="scripts/services/argo_nosql_service.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/acta_adicion_prorroga.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/acta_cesion.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/acta_inicio.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/acta_liquidacion.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/acta_reinicio.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/acta_suspension.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/acta_terminacion_liquidacion_bilateral.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/consulta_novedades.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/novedad_otro_si_aclaratorio.js"></script>
+<script src="scripts/controllers/seguimientoycontrol/legal/novedad_otro_si_modificatorio.js"></script>
 <!-- endbuild -->
 <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
 

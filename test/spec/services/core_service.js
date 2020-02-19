@@ -6,9 +6,9 @@ describe('Service: coreService', function () {
   beforeEach(module('coreService'));
 
   // instantiate service
-  var coreService;
-  beforeEach(inject(function (coreRequest) {
-    coreRequest = coreRequest;
+  var coreRequest;
+  beforeEach(inject(function (_coreRequest_) {
+    coreRequest = _coreRequest_;
   }));
 
   it('should do something', function () {

@@ -7,8 +7,8 @@ describe('Service: financieraRequest', function () {
 
   // instantiate service
   var financieraRequest;
-  beforeEach(inject(function (financieraRequest) {
-    financieraRequest = financieraRequest;
+  beforeEach(inject(function (_financieraRequest_) {
+    financieraRequest = _financieraRequest_;
   }));
 
   it('should do something', function () {

@@ -128,7 +128,10 @@ angular.module('contractualClienteApp')
                 angular.forEach(response.data, function(data) {
                     financieraMidRequest.get('disponibilidad/ListaDisponibilidades/' + response.data[0].VigenciaCdp, 'limit=1&query=Estado.Nombre__not_in:Agotado,NumeroDisponibilidad:' + data.NumeroCdp + "&UnidadEjecutora=" + 1).then(function(response) {
                         self.gridOptions_cdp.data.push(response.data[0]);
-                        if (response.data === null || response.status !== 200) {
+                        console.log(response);
+                        
+                        if (response.data.Body === null || response.status !== 200) {
+
                             swal("Alerta", $translate.instant('NO_HAY_DATOS_REDIRIGIR_CDP'), "error").then(function() {
                                 $window.location.href = '#/rp_solicitud_personas';
                             });
@@ -198,10 +201,10 @@ angular.module('contractualClienteApp')
 
                 columnDefs: [
                     { field: 'Id', visible: false },
-                    { field: 'Numero_suscrito', width: '15%', displayName: $translate.instant('VINCULACION') },
+                    { field: 'Numero_contrato', width: '15%', displayName: $translate.instant('VINCULACION') },
                     { field: 'Vigencia_contrato', width: '15%', displayName: $translate.instant('VIGENCIA') },
                     { field: 'Nombre_completo', width: '40%', displayName: $translate.instant('NOMBRE') },
-                    { field: 'Documento', width: '15%', displayName: $translate.instant('DOCUMENTO') },
+                    { field: 'Id', width: '15%', displayName: $translate.instant('DOCUMENTO') },
                     { field: 'Valor_contrato', width: '15%', cellTemplate: '<div align="right">{{row.entity.Valor_contrato | currency:undefined:0 }}</div>', displayName: $translate.instant('VALOR') }
                 ]
             };
@@ -319,11 +322,18 @@ angular.module('contractualClienteApp')
                 height: (self.gridOptions_rubros.data.length * rowHeight + headerHeight) + "px"
             };
         };
+        var fecha = new Date();
+        var ano = fecha.getFullYear();
+        var fecha2 = new Date();
+        fecha2.setMonth(fecha2.getMonth() - 12);
+        var ano_anterior = fecha2.getFullYear();
 
-        financieraRequest.get('compromiso', 'limit=0').then(function(response) {
+        
+
+        financieraRequest.get('compromiso', 'limit=-1&query=Vigencia__in:' + ano + '|' + ano_anterior).then(function(response) {
             self.gridOptions_compromiso.data = response.data;
         });
-
+      
         self.proveedor = {
 
         };

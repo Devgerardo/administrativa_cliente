@@ -96,13 +96,6 @@
 
           <div class="panel-body" ng-show="info_general">
 
-            <!--div class="form-group">
-              <small>*{{"OBLIGATORIO" | translate}}</small><br>
-              <label class="control-label">{{"TIPO_NECESIDAD" | translate}}</label>
-              <select class="form-control" ng-model="necesidadContratacionDocente.necesidad.TipoNecesidad" ng-options="tn.Id+'-'+tn.Nombre for tn in necesidadContratacionDocente.tipo_necesidad_data" required>
-                <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"TIPO_NECESIDAD" | translate}}</option>
-              </select>
-            </div-->
 
             <div class="form-group">
               <small>*{{"OBLIGATORIO" | translate}}</small><br>
@@ -113,43 +106,15 @@
             </div>
 
             <div class="form-group">
-              <!--small>*{{"OBLIGATORIO" | translate}}</small><br-->
               <label class="control-label">{{"UNIDAD_EJECUTORA" | translate}}</label>
               <span class="form-control">1 - {{"RECTOR" | translate}}</span>
-              <!--select class="form-control" ng-model="necesidadContratacionDocente.necesidad.UnidadEjecutora" ng-options="ue.Id as ue.Nombre for ue in necesidadContratacionDocente.unidad_ejecutora_data" required>
-                <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"UNIDAD_EJECUTORA" | translate}}</option>
-              </select-->
-            </div>
 
-            <!--div class="form-group"  ng-class="{ 'has-error' : solicitudform.estudio_mercados.$invalid && !solicitudform.estudio_mercados.$pristine }">
-              <small>*{{"OBLIGATORIO" | translate}}</small><br>
-              <label for="estudio_mercados" class="control-label">{{"ESTUDIO_MERCADO" | translate}}</label>
-              <textarea name="estudio_mercados" type="text" class="form-control" maxlength="600" ng-model="necesidadContratacionDocente.necesidad.EstudioMercado" placeholder="Estudio de Mercado" rows="6" required></textarea>
             </div>
-            <div class="alert alert-danger" ng-show="userForm.estudio_mercados.$invalid && !userForm.estudio_mercados.$pristine" role="alert">
-              <strong>Error!</strong> Campo requerido
-            </div>
-
-            <div class="form-group">
-              <small>*{{"OBLIGATORIO" | translate}}</small><br>
-              <label for="analisis_riesgos" class="control-label">{{"ANALISIS_RIESGOS" | translate}}</label>
-              <textarea type="text" class="form-control" maxlength="600" ng-model="necesidadContratacionDocente.necesidad.AnalisisRiesgo" placeholder="Análisis de riesgos" rows="6" required></textarea>
-            </div-->
-
-            <!--div class="form-group">
-              <small>*{{"OBLIGATORIO" | translate}}</small><br>
-              <label for="modalidad_seleccion" class=" control-label">{{"MODALIDAD_SELECCION" | translate}}</label>
-              <select class="form-control" ng-model="necesidadContratacionDocente.necesidad.ModalidadSeleccion" ng-options="mod.Id+'-'+mod.Nombre for mod in necesidadContratacionDocente.modalidad_data" required>
-                <option value="">{{"SELECCIONAR" | translate}} {{"MODALIDAD_SELECCION" | translate}}</option>
-              </select>
-            </div-->
 
             <div class="form-group">
               <label for="supervisor" class="control-label">{{"SUPERVISOR" | translate}}</label>
               <span class="form-control">{{necesidadContratacionDocente.ordenador_gasto.PrimerNombre}} {{necesidadContratacionDocente.ordenador_gasto.SegundoNombre}} {{necesidadContratacionDocente.ordenador_gasto.PrimerApellido}} {{necesidadContratacionDocente.ordenador_gasto.SegundoApellido}}</span>
-              <!--select class="form-control" ng-model="necesidadContratacionDocente.necesidad.Supervisor" ng-options="sup.Id as sup.PrimerNombre+' '+sup.SegundoNombre+' '+sup.PrimerApellido+' '+sup.SegundoApellido for sup in necesidadContratacionDocente.persona_data">
-                <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"SUPERVISOR" | translate}}</option>
-              </select-->
+
             </div>
           </div>
         </fieldset>
@@ -195,147 +160,6 @@
           </div>
         </fieldset>
 
-        <!-- Especificaciones -->
-        <!--fieldset class="form-group">
-          <legend class="text-primary" ng-click="necesidadContratacionDocente.validar_formu([necesidadContratacionDocente.necesidad.TipoContratoNecesidad],4)">{{"ESPECIFICACIONES" | translate}}<span class="fa fa-plus pull-right" ng-show="!info_espf"></span> <span class="fa fa-minus pull-right" ng-show="info_espf"></span></legend>
-          <div class="panel-body" ng-show="info_espf">
-
-            <div class="form-group">
-              <small>*{{"OBLIGATORIO" | translate}}</small><br>
-              <label class=" control-label">{{"TIPO_CONTRATO_NECESIDAD" | translate}}</label>
-              <select class="form-control" ng-model="necesidadContratacionDocente.necesidad.TipoContratoNecesidad" ng-options="tipoc.Nombre for tipoc in necesidadContratacionDocente.tipo_contrato_data" required>
-                <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"TIPO_CONTRATO_NECESIDAD" | translate}}</option>
-              </select>
-            </div>
-
-            <div ng-show="necesidadContratacionDocente.necesidad.TipoContratoNecesidad.Nombre=='Servicio'">
-
-              <div class="form-group">
-                <label for="perfil" class="control-label">{{"PERFIL" | translate}}</label>
-                <select class="form-control" ng-model="necesidadContratacionDocente.detalle_servicio_necesidad.Perfil" ng-options="parames.Id as parames.ValorParametro for parames in necesidadContratacionDocente.parametro_estandar_data">
-                  <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"PERFIL" | translate}}</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class=" control-label">{{"NUCLEO_CONOCIMIENTO_AREA" | translate}}</label>
-                <select class="form-control" ng-model="necesidadContratacionDocente.nucleoarea" ng-options="nucleoa.Id as nucleoa.Nombre for nucleoa in necesidadContratacionDocente.nucleo_area_data">
-                  <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"EL_TIPO_DE" | translate}} {{"NUCLEO_CONOCIMIENTO_AREA" | translate}}</option>
-                </select>
-              </div>
-
-              <div class="form-group" ng-show="necesidadContratacionDocente.nucleoarea!=undefined">
-                <label class=" control-label">{{"NUCLEO_CONOCIMIENTO" | translate}}</label>
-                <select class="form-control" ng-model="necesidadContratacionDocente.detalle_servicio_necesidad.NucleoConocimiento" ng-options="nucleoc.Id as nucleoc.Nombre for nucleoc in necesidadContratacionDocente.nucleo_conocimiento_data">
-                  <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"EL_TIPO_DE" | translate}} {{"NUCLEO_CONOCIMIENTO" | translate}}</option>
-                </select>
-              </div>
-
-              <label class=" control-label">{{"CANTIDAD" | translate}}</label>
-              <input class="form-control" ng-model="necesidadContratacionDocente.detalle_servicio_necesidad.Cantidad" placeholder="Cantidad" ui-number-mask="0">
-
-              <div class="form-group">
-                <label for="objeto" class="control-label">{{"ACTIVIDADES_ESPECIFICAS" | translate}}</label>
-                <div>
-                  <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="actesp in necesidadContratacionDocente.ActividadEspecifica">
-                      <label><span class="text-info">{{$index+1}}. </span>{{actesp.Descripcion}}</label>
-                      <button type="button" class="btn btn-danger btn-sm col-md-offset-11" ng-click="necesidadContratacionDocente.eliminarActividad(actesp)" aria-label="Left Align">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-                <textarea type="text" class="form-control" rows="6" ng-model="necesidadContratacionDocente.actividad_esp" placeholder="Descripcion actividad"></textarea>
-              </div>
-
-              <div class="form-group">
-                <center>
-                  <button type="button" class="btn btn-primary btn-outline" ng-click="necesidadContratacionDocente.actividad_esp!=undefined && necesidadContratacionDocente.agregarActEsp(necesidadContratacionDocente.actividad_esp);necesidadContratacionDocente.actividad_esp=undefined">{{"AGREGAR" | translate}}</button>
-                </center>
-              </div>
-              <div class="form-group">
-                <div class="col-md-6">
-                  <lista-actividades-economicas actividades="necesidadContratacionDocente.actividades_economicas"></lista-actividades-economicas>
-                </div>
-                <div class="col-md-6">
-                  <label for="objeto" class="control-label">{{"ACTIVIDADES_ECONOMICAS" | translate}}</label>
-                  <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="act in necesidadContratacionDocente.actividades_economicas">
-                      <label><span class="text-info">{{$index+1}}. </span>{{act.Id}} - {{act.Nombre}}</label>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-
-            
-            <div class="form-group" ng-if="necesidadContratacionDocente.necesidad.TipoContratoNecesidad.Nombre=='Compra'">
-              <div class="col-md-12">
-                <lista-subgrupos-catalogos productos="necesidadContratacionDocente.productos"></lista-subgrupos-catalogos>
-              </div>
-              <h4>{{"ELEMENTOS" | translate}}</h4>
-
-              <div class="col-md-4" ng-repeat="pro in necesidadContratacionDocente.productos">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <label><span class="text-info">{{$index+1}}. </span>{{pro.ElementoNombre}}</label>
-                  </div>
-                  <div class="panel-body">
-                    <label class=" control-label">{{"ELEMENTO" | translate}}</label>
-                    {{pro.i=$index+1}}
-                    <textarea ng-model="pro.Elemento" class="form-control" maxlength="200" placeholder="Elemento (Descripción)"></textarea>
-                    <label class=" control-label">{{"UNIDAD_MEDIDA" | translate}}</label>
-                    <select class="form-control" ng-model="pro.Unidad" ng-options="unidad.Id as unidad.Unidad for unidad in necesidadContratacionDocente.unidad_data">
-                      <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"UNIDAD_MEDIDA" | translate}}</option>
-                    </select>
-
-                    <label class=" control-label">{{"VALOR_UNITARIO" | translate}}</label>
-                    <input class="form-control" ng-init="pro.Valor = 0" ng-model="pro.Valor;" placeholder="Valor Unitario" ui-money-mask="0">
-
-                    <label class=" control-label">{{"IVA" | translate}} %</label>
-                    <select class="form-control" ng-model="pro.Iva" ng-options="iva.Id as iva.Valor for iva in necesidadContratacionDocente.iva_data">
-                      <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"IVA" | translate}} %</option>
-                    </select>
-
-                    <label class=" control-label">{{"VALOR_IVA" | translate}}</label>
-                    <input class="form-control" ng-model="(pro.Valor * 0.19)" placeholder="valor_con_iva" ui-money-mask="0" readonly>
-
-                    <label class=" control-label">{{"PRECIO_MAS_IVA" | translate}}</label>
-                    <input class="form-control" ng-model="(pro.Valor * 0.19) + pro.Valor" placeholder="valor_con_iva" ui-money-mask="0" readonly>
-
-                    <label class=" control-label">{{"CANTIDAD" | translate}}</label>
-                    <input class="form-control" ng-model="pro.Cantidad" placeholder="Cantidad de Elementos" ui-number-mask="0">
-
-                    <label class=" control-label">{{"TOTAL" | translate}}</label>
-                    <input class="form-control" ng-model="((pro.Valor * 0.19) + pro.Valor)*pro.Cantidad" placeholder="Total" ui-money-mask="0" readonly>
-
-
-                    <label for="objeto" class="control-label">{{"REQUISITOS_MINIMOS" | translate}}</label>
-
-                    <div>
-                      <ul class="list-group">
-                        <li class="list-group-item" ng-repeat="reqmin in necesidadContratacionDocente.requisitos_minimos " ng-if="reqmin.reqi == pro.i">
-                          <label><span class="text-info"></span>{{reqmin.requisito}}</label>
-                        </li>
-                      </ul>
-                    </div>
-                    <textarea type="text" class="form-control" rows="6" ng-model="pro.requisitomin" placeholder="Requisito mínimo"></textarea>
-
-
-                    <div class="form-group">
-                      <center>
-                        <button type="button" class="btn btn-primary btn-outline" ng-click="necesidadContratacionDocente.requisitos_minimos.push({id: $index + 1 , requisito: pro.requisitomin , reqi: pro.i});pro.requisitomin=''">{{"AGREGAR" | translate}}</button>
-                      </center>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </fieldset-->
 
         <!-- Financiación -->
         <fieldset class="form-group">
@@ -347,60 +171,12 @@
               <small>*{{"OBLIGATORIO" | translate}}</small><br>
               <label class=" control-label">{{"TIPO_FINANCIACION" | translate}}</label>
               <span class="form-control">{{"FUNCIONAMIENTO" | translate}}</span>
-              <!--select class="form-control" ng-model="necesidadContratacionDocente.necesidad.TipoFinanciacionNecesidad" ng-options="tipof.Nombre for tipof in necesidadContratacionDocente.tipo_financiacion_data" required>
-                <option value="" disabled selected>{{"SELECCIONAR" | translate}} {{"TIPO_FINANCIACION" | translate}}</option>
-              </select-->
             </div>
 
             <div class="form-group">
               <label class=" control-label">{{"SELECCIONAR" | translate}} {{"APROPIACIONES" | translate}}</label>
 
-              <!--div ng-show="necesidadContratacionDocente.necesidad.TipoFinanciacionNecesidad.Nombre=='Inversión'">
-                <lista-apropiaciones vigencia="2017" tipo="'3-3'" apropiacion="apro" unidadejecutora=necesidadContratacionDocente.necesidad.UnidadEjecutora tipofinanciacion=necesidadContratacionDocente.necesidad.TipoFinanciacionNecesidad selhijos="true"></lista-apropiaciones>
-                <center>
-                  <button type="button" class="btn btn-success btn-outline" ng-click="necesidadContratacionDocente.agregar_ffapropiacion(apro)">
-                    {{"AGREGAR" | translate}}
-                  </button>
-                </center>
 
-
-                <div class="form-group">
-                  <div class="panel panel-body col-md-12" ng-repeat="ap in necesidadContratacionDocente.f_apropiacion_inv">
-
-                    <label><span class="text-success">{{$index+1}}.</span> {{ap.aprop.Rubro.Nombre}}</label>
-                    <br>
-
-                    <div class="col-md-6">
-                      <fuentes-apropiacion apropiacion="ap.Apropiacion" fuenteapropiacion="ap.fuentes" dependenciasolicitante="necesidadContratacionDocente.dependencia_solicitante_data.DependenciaId"></fuentes-apropiacion>
-                    </div>
-
-                    <ul class="list-group col-md-6">
-                      <li class="list-group-item"-->
-                        <!--label class="text-info">{{"SALDO" | translate}}</label> {{ap.aprop.Saldo | currency}}
-                        <br-->
-                        <!--label class="text-info">{{"VALOR_SOLICITADO" | translate}}</label>{{ap.MontoParcial | currency}}
-
-                        <li class="list-group-item" ng-repeat="fu in ap.fuentes">
-                          <label class="text-warning">{{"FUENTE" | translate}}</label> {{fu.FuenteFinanciamiento.Descripcion}}
-                          <button type="button" class="btn btn-danger btn-sm col-md-offset-11" ng-click="necesidadContratacionDocente.eliminarRubro(ap)" aria-label="Left Align">
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                          </button>
-                          <br>
-                          <label class="text-warning">{{"VALOR_SOLICITADO" | translate}}</label>
-                          <input type="text" ng-init="fu.Monto=0" ng-model="fu.Monto" ui-money-mask="0">
-                          <br>
-                        </li>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div class="form-group panel-body">
-                  <label>{{"TOTAL_FINANCIACION" | translate}}</label> {{necesidadContratacionDocente.valor_inv | currency}}<br>
-                  <label> Total especificaciones: </label> {{necesidadContratacionDocente.valorTotalEspecificaciones | currency}}
-                </div>
-
-              </div-->
 
               <div class="panel panel-body col-md-12">
 
@@ -423,9 +199,6 @@
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                           </button>
                           <br>
-                          <!--label class="text-info">{{"SALDO" | translate}}</label>
-                          <input type="text" ng-model="ap.aprop.Saldo" ui-money-mask="0" readonly>
-                          <br-->
                           <label class="text-info">{{"VALOR_SOLICITADO" | translate}}</label>
                           <input type="text" ng-model="ap.MontoParcial" ui-money-mask="0">
                           <br>

@@ -22,10 +22,6 @@
                     <div class="panel-body" ng-show="info_cancelar">
                         <form role="form">
                             <div class="row">
-                                <div class="form-group col-lg-6">
-                                    <label>{{ 'FECHA_CANCELACION' | translate }}</label>
-                                    <md-datepicker ng-model="contratoRegistroCancelar.contratoCanceladoBase.FechaCancelacion" md-current-view="year" md-placeholder="Elija fecha de cancelación" required></md-datepicker>
-                                </div>
                                 <div class="form-group col-lg-12">
                                         <label>{{ 'JUSTIFICACION' | translate }}</label>
                                         <textarea rows="4" type="text" class="form-control" ng-model="contratoRegistroCancelar.contratoCanceladoBase.MotivoCancelacion" required></textarea>
@@ -38,8 +34,8 @@
                         <form role="form">
                             <div class="row">
                                 <div class="form-group col-lg-6">
-                                    <label>{{ 'FECHA_EXPEDICION' | translate }}</label>
-                                    <md-datepicker ng-model="contratoRegistroCancelar.FechaExpedicion" md-current-view="year" md-placeholder="Elija fecha" required></md-datepicker>
+                                    <label>{{ 'FECHA_EXPEDICION_VALIDA' | translate }}</label>
+                                    <md-datepicker ng-model="contratoRegistroCancelar.FechaExpedicion" md-current-view="year" md-date-filter="validarFecha" md-placeholder="{{'ELEGIR_FECHA' | translate }}" fecha-valida required></md-datepicker>
                                 </div>
                                 <div class="form-group col-lg-6">
                                         <label>{{ 'NUMERO_RESOLUCION' | translate }}</label>
@@ -58,7 +54,10 @@
                     </div>
                 </div>
                 <center><loading load="hojasDeVidaSeleccion.estado" tam="10"></loading><center></center>
-                <div class="form-group col-lg-8 col-lg-offset-2"><input type="submit" class="form-control btn btn-success" value="{{'REALIZAR_EXPEDICION' | translate }}" ng-click="contratoRegistroCancelar.cancelarContrato()">
+                <div ng-hide="contratoRegistroCancelar.esconderBoton" class="form-group col-lg-8 col-lg-offset-2"><input type="submit" class="form-control btn btn-success" value="{{'REALIZAR_EXPEDICION' | translate }}" ng-click="contratoRegistroCancelar.cancelarContrato()">
+                </div>
+                <div class=panel-body>
+                        <div ng-hide="contratoRegistroCancelar.esconderBoton" class="form-group col-lg-6 col-lg-offset-3"><input type="submit" class="form-control btn btn-danger" value="{{'CANCELAR' | translate }}" ng-click="contratoRegistroCancelar.cancelarExpedicion()">
                 </div>
             </div>
         </div>

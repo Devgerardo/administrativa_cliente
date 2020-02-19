@@ -154,7 +154,7 @@ angular.module('contractualClienteApp')
       {
         field: 'Acciones',
         displayName: $translate.instant('ACC'),
-        cellTemplate: 
+        cellTemplate:
        // ' <a type="button" title="{{\'CAR_SOP\'| translate }}" type="button" class="fa fa-upload fa-lg  faa-shake animated-hover" ng-click="grid.appScope.cargaDocumentosDocente.cargar_soportes(row.entity); grid.appScope.cargaDocumentosDocente.solicitar_pago(row.entity);"  data-toggle="modal" data-target="#modal_carga_listas_docente">'
         ' <a type="button" title="Enviar Solicitud" type="button" class="fa fa-upload fa-lg  faa-shake animated-hover" ng-click="grid.appScope.cargaDocumentosDocente.cargar_soportes(row.entity); grid.appScope.cargaDocumentosDocente.solicitar_pago(row.entity);"  data-toggle="modal" data-target="#modal_check_docente">',
         width: "10%"
@@ -225,7 +225,7 @@ angular.module('contractualClienteApp')
         field: 'Acciones',
         displayName: $translate.instant('ACC'),
         cellTemplate: '<a type="button" title="{{\'VER_SOP\'| translate }}" type="button" class="fa fa-folder-open-o fa-lg  faa-shake animated-hover" ng-click="grid.appScope.cargaDocumentosDocente.obtener_doc(row.entity)" data-toggle="modal" data-target="#modal_ver_soportes">' +
-          '</a>&nbsp;' 
+          '</a>&nbsp;'
           //+ ' <a ng-if="row.entity.EstadoPagoMensual.CodigoAbreviacion === \'CD\' || row.entity.EstadoPagoMensual.CodigoAbreviacion === \'RC\' || row.entity.EstadoPagoMensual.CodigoAbreviacion === \'RD\' || row.entity.EstadoPagoMensual.CodigoAbreviacion === \'RP\'" type="button" title="{{\'ENV_REV\'| translate }}" type="button" class="fa fa-send-o fa-lg  faa-shake animated-hover" ng-click="grid.appScope.cargaDocumentosDocente.enviar_revision(row.entity)"  >'
           + ' <a ng-if="row.entity.EstadoPagoMensual.CodigoAbreviacion === \'CD\' || row.entity.EstadoPagoMensual.CodigoAbreviacion === \'RC\' || row.entity.EstadoPagoMensual.CodigoAbreviacion === \'RD\' || row.entity.EstadoPagoMensual.CodigoAbreviacion === \'RP\'" type="button" title="{{\'ENV_REV\'| translate }}" type="button" class="fa fa-send-o fa-lg  faa-shake animated-hover" ng-click="grid.appScope.cargaDocumentosDocente.enviar_revision_check(row.entity)"  >',
         width: "10%"
@@ -325,7 +325,11 @@ angular.module('contractualClienteApp')
           //Carga la información en la tabla
           self.gridOptions1.data = self.respuesta_docente;
         }else{
-          alert("No se encontraron vinculaciones vigentes asociadas a su número de documento");
+          swal(
+            'Error',
+            'No se encontraron vinculaciones vigentes asociadas a su número de documento',
+            'error'
+        )
         }
 
       });
@@ -415,7 +419,7 @@ angular.module('contractualClienteApp')
 
     if (self.mes !== undefined && self.anio !== undefined) {
 
-  
+
       //Petición para obtener id de estado pago mensual
       administrativaRequest.get("estado_pago_mensual", $.param({
           query: "CodigoAbreviacion:CD",
@@ -528,13 +532,13 @@ angular.module('contractualClienteApp')
             defered.resolve(url);
           })
           .catch(function(error) {
+            defered.reject(error);
             throw error;
-            defered.reject(error)
           });
       })
       .catch(function(error) {
+        defered.reject(error);
         throw error;
-        defered.reject(error)
       });
 
     return promise;
@@ -777,7 +781,7 @@ angular.module('contractualClienteApp')
     $window.open(url);
   };
 
-  
+
   /*
     Función para "borrar" un documento
   */
@@ -820,7 +824,7 @@ angular.module('contractualClienteApp')
 
     if (self.mes !== undefined && self.anio !== undefined) {
 
-  
+
       //Petición para obtener id de estado pago mensual
       administrativaRequest.get("estado_pago_mensual", $.param({
           query: "CodigoAbreviacion:PRC",
@@ -925,7 +929,7 @@ angular.module('contractualClienteApp')
 
 
   self.enviar_revision_check = function (solicitud) {
- 
+
     swal({
       title: '¿Está seguro(a) de enviar el cumplido a la coordinación?',
       type: 'warning',
@@ -938,7 +942,7 @@ angular.module('contractualClienteApp')
           solicitud.EstadoPagoMensual = {"Id":1};
           solicitud.Responsable = self.informacion_coordinador.numero_documento_coordinador;
           solicitud.CargoResponsable = "COORDINADOR " + self.contrato.Dependencia;
-      
+
           solicitud.CargoResponsable = solicitud.CargoResponsable.substring(0,69);
           administrativaRequest.put('pago_mensual', solicitud.Id, solicitud).
           then(function(response){

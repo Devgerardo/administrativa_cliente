@@ -1,0 +1,154 @@
+<br>
+<div class="panel panel-default">
+  <div><center><h3 class="titulo-centrado">{{'ACTA_ADICION_PRORROGA' | translate}}</h3></center></div>
+  <form name="formadipro" id="formulario" ng-submit="sLactaAdicionProrroga.generarActa()" method="post">
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-1"></div>
+        <div class="col-xs-12 col-sm-12 col-md-5">
+          <div class="panel panel-primary">
+            <div class="panel-heading"><center><h4><b>{{'INFORMACION' | translate}}</b></h4></center></div>
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-md-6"><b>{{'TIPO_CONTRATO' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.tipo_contrato}}</p></div>
+                <div class="col-md-6"><b>{{'NUMERO_CONTRATO' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.id}}</p></div>
+                <div class="col-md-6"><b>{{'OBJETO' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.ObjetoContrato}}</p></div>
+                <div class="col-md-6"><b>{{'VALOR_TOTAL_CONTRATO' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.ValorContrato | currency}}</p></div>
+                <div class="col-md-6"><b>{{'DATOS_CONTRATISTA' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.contratista_nombre}}</p></div>
+                <div class="col-md-6"><b>{{'PLAZO_INICIAL_MESES' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.PlazoEjecucion}}</p></div>
+                <div class="col-md-6"><b>{{'SUPERVISOR' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.supervisor_nombre}}</p></div>
+                <div class="col-md-6"><b>{{'FECHA_INICIACION' | translate}}</b></div>
+                <div class="col-md-6"><p>{{sLactaAdicionProrroga.contrato_obj.FechaRegistro | date : format : timezone}}</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-5">
+          <div class="panel panel-primary" style="height: 371px;">
+            <div class="panel-heading"><center><h4><b>{{'INFORMACION_NOVEDAD' | translate}}</b></h4></center></div>
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-xs-12 col-md-12">
+                  <center>
+                    <label class="checkbox-inline"><input type="checkbox" ng-model="adicion" ng-click="click_check_adicion()"><b>{{'ADICION' | translate}}</b></label>
+                    <label class="checkbox-inline"><input type="checkbox" ng-model="prorroga" ng-click="click_check_prorroga()"><b>{{'PRORROGA' | translate}}</b></label>
+                  </center>
+                </div>
+              </div>
+              <hr>
+              <div class="row" style="border: 0px solid;">
+                <div class="col-xs-12 col-md-6">
+                  <label>{{'NUMERO_SOLICITUD' | translate}}</label>
+                  <md-input-container style="margin:0;">
+                    <input type="number" id="solicitud" name="solicitud" ng-model="numero_solicitud" min="0" required>
+                    <div ng-messages="formadipro.solicitud.$error">
+                      <div ng-message="required">{{'CAMPO_REQUERIDO' | translate}}</div>
+                    </div>
+                  </md-input-container>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                  <label>{{'FECHA_SOLICITUD' | translate}}</label>
+                  <md-datepicker ng-model="sLactaAdicionProrroga.fecha_inicio"></md-datepicker>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                  <label for="motivo">{{'MOTIVO' | translate}}</label>
+                  <textarea style="height: 100px;" class="form-control" id="motivo" ng-model="motivo" rows="3" placeholder="{{'MOTIVO_NOVEDAD' | translate}}"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-primary panel_adicion" style="display: none;">
+            <div class="panel-heading"><center><h4><b>{{'INFORMACION_NOVEDAD_ADICION' | translate}}</b></h4></center></div>
+            <div class="panel-body">
+              <div class="row" style="border: 0px solid;">
+                <div class="col-xs-12 col-md-6" >
+                  <label>{{'NUMERO_CDP' | translate}}</label>
+                  <md-input-container style="margin:0;">
+                    <input type="number" id="numero_cdp" name="numero_cdp" ng-model="sLactaAdicionProrroga.contrato_obj.NumeroCdp" min="0" readonly>
+                  </md-input-container>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                  <label for="fecha-adicion">{{'FECHA_ADICION' | translate}}</label>
+                  <md-datepicker ng-model="fecha_adicion" md-min-date="sLactaAdicionProrroga.fecha_inicio"></md-datepicker>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                  <div class="row">
+                    <div class="col-xs-12 col-md-6">
+                      <label>{{'VALOR_ADICION' | translate}}</label>
+                      <md-input-container style="margin:0;">
+                        <input type="text" id="valor_adicion" name="valor_adicion" ng-model="valor_adicion" ng-keyup="total_valor_contrato($event)" min="1" required="false">
+                        <div ng-messages="formadipro.valor_adicion.$error">
+                          <div ng-message="required">{{'CAMPO_REQUERIDO' | translate}}</div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                    <div class="col-xs-12 col-md-6">
+                      <label>{{'NUEVO_VALOR_CONTRATO' | translate}}</label>
+                      <md-input-container style="margin:0;">
+                        <input type="text" id="nuevo_valor_contrato" name="nuevo_valor_contrato" ng-model="nuevo_valor_contrato" readonly>
+                      </md-input-container>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-12 col-md-12" ng-if="valor_adicion != undefined">
+                  <div class="row">
+                    <div class="col-xs-12 col-md-6">
+                      <span><b>{{VALOR_ADICION_TEXTO}}</b></span>
+                      <span>{{valor_adicion_letras}}</span>
+                    </div>
+                    <div class="col-xs-12 col-md-6">
+                      <span><b>{{NUEVO_VALOR_ADICION}}</b></span>
+                      <span>{{nuevo_valor_contrato_letras}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-primary panel_prorroga" style="display: none;">
+            <div class="panel-heading"><center><h4><b>{{'INFORMACION_NOVEDAD_PRORROGA' | translate}}</b></h4></center></div>
+            <div class="panel-body">
+              <div class="row" style="border: 0px solid;">
+                <div class="col-xs-12 col-md-6">
+                  <label>{{'TIEMPO_PRORROGA' | translate}}</label>
+                  <md-input-container style="margin:0;">
+                    <input type="number" id="tiempo_prorroga" name="tiempo_prorroga" ng-model="tiempo_prorroga" ng-keyup="total_plazo_contrato($event)" min="0" required="false">
+                    <div ng-messages="formadipro.tiempo_prorroga.$error">
+                      <div ng-message="required">{{'CAMPO_REQUERIDO' | translate}}</div>
+                    </div>
+                  </md-input-container>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                  <label>{{'FECHA_PRORROGA' | translate}}</label>
+                  <md-datepicker ng-model="fecha_prorroga" md-min-date="sLactaAdicionProrroga.fecha_inicio"></md-datepicker>
+                </div>
+                <div class="fcol-xs-12 col-md-12" ng-if="tiempo_prorroga != undefined">
+                  <label>{{'NUEVO_PLAZO_CONTRATO' | translate}}</label><br>
+                  <span>{{nuevo_plazo_contrato}}.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-1"></div>
+      </div>
+    </div>
+    <div class="panel-footer">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12" style="text-align: center;">
+          <button type="submit" class="btn btn-primary btn-lg" ng-click="sLactaAdicionProrroga.comprobar_seleccion_novedad()">
+            <span class="glyphicon glyphicon-file"></span> {{'CREAR_NOVEDAD_ADICION_PRORROGA' | translate}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

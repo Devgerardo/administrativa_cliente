@@ -64,7 +64,7 @@
             <div class="form-group" ng-show="rpSolicitudPersonas.buscar">
               <div class="col-md-2 col-md-offset-3" >
                   <div ng-if="vigenciaModel=== null">
-                    <label>{{'VIGENCIA_ACTUAL' | translate}} <b>2017</b> </label>
+                    <label>{{'VIGENCIA_ACTUAL' | translate}} <b>{{vigencia_actual}}</b> </label>
                   </div>
                   <div ng-if="vigenciaModel !== null">
                     <label>{{'VIGENCIA_SELECCIONADA' | translate}}<b>{{vigenciaModel}}</b> </label>

@@ -8,14 +8,17 @@
  * Controller of the clienteApp
  */
 angular.module('contractualClienteApp')
-    .controller('ResolucionGeneracionCtrl', function(adminMidRequest, administrativaRequest, oikosRequest, $mdDialog, $scope, $routeParams, $window, $translate) {
+    .controller('ResolucionGeneracionCtrl', function (adminMidRequest, administrativaRequest, oikosRequest, $mdDialog, $scope, $routeParams, $window, $translate) {
 
         var self = this;
 
         self.CurrentDate = new Date();
         self.anioPeriodo = new Date().getFullYear();
         self.objeto_facultad = {};
-
+        self.vigencias = [];
+        for (var v = 2018; v <= self.anioPeriodo; v++){
+            self.vigencias.push(v);
+        }
         self.resolucionesExpedidasPeriodo = {
             paginationPageSizes: [10, 15, 20],
             paginationPageSize: 10,
@@ -24,57 +27,57 @@ angular.module('contractualClienteApp')
             enableRowSelection: true,
             enableRowHeaderSelection: false,
             columnDefs: [{
-                    field: 'Id',
-                    visible: false
-                },
-                {
-                    field: 'FechaExpedicion',
-                    visible: false
-                },
-                {
-                    field: 'Estado',
-                    visible: false
-                },
-                {
-                    field: 'Numero',
-                    width: '10%',
-                    displayName: $translate.instant('NUMERO')
-                },
-                {
-                    field: 'Vigencia',
-                    width: '10%',
-                    displayName: $translate.instant('VIGENCIA')
-                },
-                {
-                    field: 'Periodo',
-                    width: '10%',
-                    displayName: $translate.instant('PERIODO')
-                },
-                {
-                    field: 'Facultad',
-                    width: '20%',
-                    displayName: $translate.instant('FACULTAD')
-                },
-                {
-                    field: 'NivelAcademico',
-                    width: '15%',
-                    displayName: $translate.instant('NIVEL')
-                },
-                {
-                    field: 'Dedicacion',
-                    width: '10%',
-                    displayName: $translate.instant('DEDICACION')
-                },
-                {
-                    field: 'NumeroSemanas',
-                    width: '15%',
-                    displayName: $translate.instant('SEMANAS')
-                },
-                {
-                    field: 'Estado',
-                    width: '12%',
-                    displayName: $translate.instant('ESTADO')
-                },
+                field: 'Id',
+                visible: false
+            },
+            {
+                field: 'FechaExpedicion',
+                visible: false
+            },
+            {
+                field: 'Estado',
+                visible: false
+            },
+            {
+                field: 'Numero',
+                width: '10%',
+                displayName: $translate.instant('NUMERO')
+            },
+            {
+                field: 'Vigencia',
+                width: '10%',
+                displayName: $translate.instant('VIGENCIA')
+            },
+            {
+                field: 'Periodo',
+                width: '10%',
+                displayName: $translate.instant('PERIODO')
+            },
+            {
+                field: 'NombreFacultad',
+                width: '27%',
+                displayName: $translate.instant('FACULTAD')
+            },
+            {
+                field: 'NivelAcademico',
+                width: '15%',
+                displayName: $translate.instant('NIVEL')
+            },
+            {
+                field: 'Dedicacion',
+                width: '10%',
+                displayName: $translate.instant('DEDICACION')
+            },
+            {
+                field: 'NumeroSemanas',
+                width: '8%',
+                displayName: $translate.instant('SEMANAS')
+            },
+            {
+                field: 'Estado',
+                width: '10%',
+                displayName: $translate.instant('ESTADO')
+            },
 
 
             ]
@@ -82,18 +85,26 @@ angular.module('contractualClienteApp')
 
         self.resolucionesExpedidasPeriodo.multiSelect = false;
 
-        self.resolucionesExpedidasPeriodo.onRegisterApi = function(gridApi) {
+        self.resolucionesExpedidasPeriodo.onRegisterApi = function (gridApi) {
             self.gridApi = gridApi;
-            gridApi.selection.on.rowSelectionChanged($scope, function(row) {
+            gridApi.selection.on.rowSelectionChanged($scope, function (row) {
                 self.resolucion_a_cancelar_seleccionada = row.entity;
             });
 
         };
-        //CALCULAR EN QUÉ PERIODO SE ESTÁ
-        administrativaRequest.get("resolucion_vinculacion/expedidas_vigencia_periodo", "vigencia="+self.anioPeriodo+"&periodo=1").then(function(response) {
+
+        oikosRequest.get('dependencia_tipo_dependencia', $.param({
+            query: "TipoDependenciaId.Id:2",
+            fields: "DependenciaId",
+            limit: -1
+        })).then(function (response) {
+            self.facultades = response.data;
+        });
+
+        administrativaRequest.get("resolucion_vinculacion/expedidas_vigencia_periodo_vinculacion", "vigencia=" + self.anioPeriodo).then(function (response) {
             self.resolucionesExpedidasPeriodo.data = response.data;
             if (self.resolucionesExpedidasPeriodo.data !== null) {
-                self.resolucionesExpedidasPeriodo.data.forEach(function(resolucion) {
+                self.resolucionesExpedidasPeriodo.data.forEach(function (resolucion) {
                     if (resolucion.FechaExpedicion !== null) {
                         //dado que el servicio no está almacenando la Feha de expedición directamente como null, se toma el valor "0001-01-01T00:00:00Z" como tal
                         if (resolucion.FechaExpedicion.toString() === "0001-01-01T00:00:00Z") {
@@ -113,33 +124,37 @@ angular.module('contractualClienteApp')
                             resolucion.EstadoTexto = "Cancelada";
                         }
                     }
+                    self.facultades.forEach(function (dependencia) {
+                        if (dependencia.DependenciaId.Id == resolucion.Facultad){
+                            resolucion.NombreFacultad = dependencia.DependenciaId.Nombre;
+                        }
+                    });
                 });
             }
         });
 
-        oikosRequest.get("dependencia_tipo_dependencia", "query=TipoDependenciaId.Id%3A2&fields=DependenciaId&limit=-1").then(function(response) {
-            self.facultades = response.data;
-        });
 
         self.resolucion = {};
 
-        administrativaRequest.get("tipo_resolucion", "limit=-1").then(function(response) {
+        administrativaRequest.get('tipo_resolucion', $.param({
+            limit: -1,
+            sortby: "Id",
+            order: "asc"
+        })).then(function (response) {
             self.tipos_resolucion = response.data;
+            self.tipoResolucionDefecto = self.tipos_resolucion[0].Id;
         });
 
-        /*
-
-        administrativaRequest.get("contenido_resolucion/ResolucionTemplate").then(function(response) {
-            self.resolucion.preambulo = response.data.Preambulo;
-            self.resolucion.consideracion = response.data.Consideracion;
-        });
-
-        */
 
 
-        self.crearResolucion = function() {
+        self.crearResolucion = function () {
             self.objeto_facultad = JSON.parse(self.resolucion.facultad);
-            if (self.resolucion.numero && self.resolucion.facultad && self.resolucion.nivelAcademico && self.resolucion.dedicacion && self.resolucion.numeroSemanas) {
+            if (self.resolucion.numero &&
+                self.resolucion.facultad &&
+                self.resolucion.nivelAcademico &&
+                self.resolucion.dedicacion &&
+                self.resolucion.numeroSemanas &&
+                self.resolucion.Periodo) {
                 swal({
                     title: $translate.instant('DATOS_RESOLUCION'),
                     html: '<p><b>' + $translate.instant('NUMERO') + ': </b>' + self.resolucion.numero.toString() + '</p>' +
@@ -155,14 +170,15 @@ angular.module('contractualClienteApp')
                     cancelButtonText: $translate.instant('CANCELAR_GUARDAR_RESOLUCION'),
                     confirmButtonClass: 'btn btn-success',
                     cancelButtonClass: 'btn btn-danger',
-                    buttonsStyling: false
-                }).then(function() {
+                    buttonsStyling: false,
+                    allowOutsideClick: false
+                }).then(function () {
                     self.guardarResolucion();
-                }, function( /*dismiss*/ ) {});
+                }, function ( /*dismiss*/) { });
             }
         };
 
-        self.guardarResolucion = function() {
+        self.guardarResolucion = function () {
             if (self.tipo_resolucion_elegida === '1') {
                 self.resolucion_a_cancelar_seleccionada = [];
             }
@@ -178,8 +194,9 @@ angular.module('contractualClienteApp')
                 NumeroSemanas: parseInt(self.resolucion.numeroSemanas),
                 Periodo: parseInt(self.resolucion.Periodo),
                 IdTipoResolucion: tipoResolucion,
-              //  PreambuloResolucion: self.resolucion.preambulo,
-                //ConsideracionResolucion: self.resolucion.consideracion,
+                IdDependenciaFirma: self.firmaRector ? 7 : self.objeto_facultad.Id,
+                PeriodoCarga: self.mostrarCamposCarga ? parseInt(self.resolucion.PeriodoCarga) : parseInt(self.resolucion.Periodo),
+                VigenciaCarga: self.mostrarCamposCarga ? self.resolucion.VigenciaCarga : (new Date()).getFullYear()
             };
 
             var resolucionVinculacionDocenteData = {
@@ -192,18 +209,19 @@ angular.module('contractualClienteApp')
                 Resolucion: resolucionData,
                 ResolucionVinculacionDocente: resolucionVinculacionDocenteData,
                 ResolucionVieja: self.resolucion_a_cancelar_seleccionada.Id,
-                NomDependencia:  self.objeto_facultad.Nombre,
-              };
+                NomDependencia: self.objeto_facultad.Nombre,
+            };
+            
 
-
-            adminMidRequest.post("gestion_resoluciones/insertar_resolucion_completa", objeto_resolucion).then(function(response) {
+            adminMidRequest.post("gestion_resoluciones/insertar_resolucion_completa", objeto_resolucion).then(function (response) {
                 if (response.data) {
                     self.resolucion_creada = response.data;
                     swal({
                         text: $translate.instant('ALERTA_RESOLUCION_EXITOSA'),
                         type: 'success',
-                        confirmButtonText: $translate.instant('ACEPTAR')
-                    }).then(function() {
+                        confirmButtonText: $translate.instant('ACEPTAR'),
+                        allowOutsideClick: false
+                    }).then(function () {
                         $window.location.href = '#/vinculacionespecial/resolucion_gestion';
                     });
 
@@ -213,7 +231,7 @@ angular.module('contractualClienteApp')
                         text: $translate.instant('ALERTA_ERROR_RESOLUCION'),
                         type: 'error',
                         confirmButtonText: $translate.instant('ACEPTAR')
-                    }).then(function() {
+                    }).then(function () {
                         $window.location.href = '#/vinculacionespecial/resolucion_gestion';
                     });
                 }
@@ -223,7 +241,7 @@ angular.module('contractualClienteApp')
 
         };
 
-        self.AsociarResolucionCancelacion = function() {
+        self.AsociarResolucionCancelacion = function () {
 
             if (self.resolucion_a_cancelar_seleccionada && self.resolucion.numero) {
                 self.resolucion.nivelAcademico = self.resolucion_a_cancelar_seleccionada.NivelAcademico;
@@ -244,7 +262,6 @@ angular.module('contractualClienteApp')
                 });
             }
 
-            //
         };
 
     });

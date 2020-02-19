@@ -2,22 +2,21 @@
 
 /**
  * @ngdoc function
- * @name contractualClienteApp.controller:AprobacionOrdenadorCtrl
+ * @name contractualClienteApp.controller:AprobacionCoordinadorCtrl
  * @description
- * # AprobacionOrdenadorCtrl
+ * # AprobacionCoordinadorCtrl
  * Controller of the contractualClienteApp
  */
 angular.module('contractualClienteApp')
-  .controller('AprobacionOrdenadorCtrl', function ($scope, oikosRequest, $http, uiGridConstants, contratoRequest, $translate, administrativaRequest,$routeParams,adminMidRequest) {
+  .controller('AprobacionOrdenadorCtrl', function (homologacionDependenciaService, oikosRequest, $http, uiGridConstants, contratoRequest, $translate, administrativaRequest, academicaWsoService, coreRequest, $q, $window, $sce, nuxeo, adminMidRequest, $routeParams, wso2GeneralService) {
     //Variable de template que permite la edición de las filas de acuerdo a la condición ng-if
     var tmpl = '<div ng-if="!row.entity.editable">{{COL_FIELD}}</div><div ng-if="row.entity.editable"><input ng-model="MODEL_COL_FIELD"</div>';
 
     //Se utiliza la variable self estandarizada
     var self = this;
-    self.Documento = '19400342';
-
-    self.contratistas = [];
-
+    self.Documento = $routeParams.docid;
+    self.objeto_docente = [];
+    self.nombres_docentes_incumplidos = '';
     self.mes = '';
 
     self.meses = [{
@@ -82,7 +81,7 @@ angular.module('contractualClienteApp')
     });
 
     /*
-      Creación tabla que tendrá todos los contratistas relacionados al ordenador
+      Creación tabla que tendrá todos los docentes relacionados al coordinador
     */
     self.gridOptions1 = {
       enableSorting: true,
@@ -91,7 +90,7 @@ angular.module('contractualClienteApp')
       rowHeight: 40,
       columnDefs: [
         {
-          field: 'NombreDependencia',
+          field: 'Dependencia.Nombre',
           cellTemplate: tmpl,
           displayName: $translate.instant('PRO_CURR'),
           sort: {
@@ -146,193 +145,297 @@ angular.module('contractualClienteApp')
             direction: uiGridConstants.ASC,
             priority: 1
           },
-        }
-        ,
-        {
-          field: 'Acciones',
-          displayName: $translate.instant('ACC'),
-          cellTemplate:  ' <a type="button" title="Aprobar pago" type="button" class="fa fa-check fa-lg  faa-shake animated-hover"  ng-click="grid.appScope.aprobacionOrdenador.aprobarPago(row.entity.PagoMensual)">'+
+        },
+      {
+        field: 'Acciones',
+        displayName: $translate.instant('ACC'),
+        cellTemplate: //'<a type="button" title="Ver soportes" type="button" class="fa fa-eye fa-lg  faa-shake animated-hover"' +
+          //'ng-click="grid.appScope.aprobacionCoordinador.obtener_doc(row.entity.PagoMensual)" data-toggle="modal" data-target="#modal_ver_soportes"</a>&nbsp;' +
+          '<a type="button" title="Visto bueno" type="button" class="fa fa-check fa-lg  faa-shake animated-hover"' +
+          'ng-click="grid.appScope.aprobacionCoordinador.dar_visto_bueno(row.entity.PagoMensual)"></a>&nbsp;'+
           '<a type="button" title="Rechazar" type="button" class="fa fa-close fa-lg  faa-shake animated-hover"' +
-          'ng-click="grid.appScope.aprobacionOrdenador.rechazarPago(row.entity.PagoMensual)"></a>',
-          width: "10%"
-        }
+          'ng-click="grid.appScope.aprobacionCoordinador.rechazar(row.entity.PagoMensual)"></a>',
+        width: "10%"
+      }
       ]
-    };
+};
 
 
-
+    /*
+      Función que permite obtener la data de la fila seleccionada
+    */
     self.gridOptions1.onRegisterApi = function (gridApi) {
       self.gridApi = gridApi;
-
-      gridApi.selection.on.rowSelectionChanged($scope, function(row) {
-
-
-            self.solicitudes_seleccionadas = gridApi.selection.getSelectedRows();
+    };
 
 
-    });
+
+    /*
+    Función que al recibir el número de documento del coordinador cargue los correspondientes
+    */
+    self.obtener_docentes_coordinador = function () {
+
+      self.obtener_informacion_coordinador(self.Documento);
+      //Petición para obtener el Id de la relación de acuerdo a los campos
+      adminMidRequest.get('aprobacion_pago/solicitudes_coordinador/'+self.Documento).then(function (response) {
+        self.documentos = response.data;
+        //self.obtener_informacion_docente();
+        self.gridOptions1.data = self.documentos;
+      });
+};
 
 
+    /*
+      Función que obtiene la información correspondiente al coordinador
+    */
+    self.obtener_informacion_coordinador = function (documento) {
+      //Se realiza petición a servicio de academica que retorna la información del coordinador
+      academicaWsoService.get('coordinador_carrera_snies', documento).
+        then(function (response) {
+          self.informacion_coordinador = response.data;
+        //  self.coordinador = self.informacion_coordinador.coordinadorCollection.coordinador[0];
+          self.proyectos_coordinador = self.informacion_coordinador.coordinadorCollection.coordinador;
+          self.nombre_coordinador = self.informacion_coordinador.coordinadorCollection.coordinador[0].nombre_coordinador;
+        })
+    };
+
+    /**/
+
+    self.obtener_docentes_coordinador();
+
+
+    self.dar_visto_bueno = function (pago_mensual) {
+      contratoRequest.get('contrato_elaborado', pago_mensual.NumeroContrato + '/' + pago_mensual.VigenciaContrato).then(function (response) {
+        self.aux_pago_mensual = pago_mensual;
+        self.contrato = response.data.contrato;
+        self.aux_pago_mensual.Responsable = self.contrato.supervisor.documento_identificacion.toString();
+
+        administrativaRequest.get('estado_pago_mensual', $.param({
+          limit: 0,
+          query: 'CodigoAbreviacion:PAD'
+        })).then(function (responseCod) {
+
+          var sig_estado = responseCod.data;
+          self.aux_pago_mensual.EstadoPagoMensual.Id = sig_estado[0].Id;
+
+
+          administrativaRequest.put('pago_mensual', self.aux_pago_mensual.Id, self.aux_pago_mensual).then(function (response) {
+
+           if(response.data==="OK"){
+
+            swal(
+              'Visto bueno registrado',
+              'Se ha registrado el visto bueno del cumplido',
+              'success'
+            )
+            self.obtener_docentes_coordinador();
+            self.gridApi.core.refresh();
+           }else{
+
+
+            swal(
+              'Error',
+              'No se ha podido registrar el visto bueno',
+              'error'
+            );
+           }
+
+          });
+
+        })
+      });
+
+    };
+
+    self.rechazar = function (pago_mensual) {
+
+      contratoRequest.get('contrato_elaborado', pago_mensual.NumeroContrato + '/' + pago_mensual.VigenciaContrato).then(function (response) {
+        self.aux_pago_mensual = pago_mensual;
+       // self.contrato = response.data.contrato;
+        //self.aux_pago_mensual.Responsable = self.contrato.supervisor.documento_identificacion;
+
+        administrativaRequest.get('estado_pago_mensual', $.param({
+          limit: 0,
+          query: 'CodigoAbreviacion:RC'
+        })).then(function (responseCod) {
+
+          var sig_estado = responseCod.data;
+          self.aux_pago_mensual.EstadoPagoMensual.Id = sig_estado[0].Id;
+
+          administrativaRequest.put('pago_mensual', self.aux_pago_mensual.Id, self.aux_pago_mensual).then(function (response) {
+
+            if(response.data==="OK"){
+
+              swal(
+                'Rechazo registrado',
+                'Se ha registrado el rechazo del cumplido',
+                'success'
+              )
+              self.obtener_docentes_coordinador();
+              self.gridApi.core.refresh();
+             }else{
+
+
+              swal(
+                'Error',
+                'No se ha podido registrar el rechazo',
+                'error'
+              );
+             }
+
+          });
+
+        })
+      });
+
+    };
+
+    /*
+      Función para ver documentos de los docentes a cargo
+    */
+    self.obtener_doc = function (fila){
+      self.fila_sol_pago = fila;
+      var nombre_docs = self.fila_sol_pago.VigenciaContrato + self.fila_sol_pago.NumeroContrato + self.fila_sol_pago.Persona + self.fila_sol_pago.Mes + self.fila_sol_pago.Ano;
+      coreRequest.get('documento', $.param ({
+       query: "Nombre:" + nombre_docs + ",Activo:true",
+       limit:0
+     })).then(function(response){
+       self.documentos = response.data;
+       angular.forEach(self.documentos, function(value) {
+         self.descripcion_doc = value.Descripcion;
+         value.Contenido = JSON.parse(value.Contenido);
+
+         if (value.Contenido.Tipo === "Enlace") {
+             value.Contenido.NombreArchivo = value.Contenido.Tipo;
+         };
+       });
+     })
+   };
+
+
+   /*
+     Función para visualizar enlace
+   */
+   self.visualizar_enlace = function (url){
+     $window.open(url);
+   };
+
+   /*
+     Función que permite obtener un documento de nuxeo por el Id
+   */
+   self.getDocumento = function(docid){
+    nuxeo.header('X-NXDocumentProperties', '*');
+
+    self.obtenerDoc = function () {
+      var defered = $q.defer();
+
+      nuxeo.request('/id/'+docid)
+          .get()
+          .then(function(response) {
+            self.doc=response;
+            var aux=response.get('file:content');
+            self.document=response;
+            defered.resolve(response);
+          })
+          .catch(function(error){
+              defered.reject(error)
+          });
+      return defered.promise;
+    };
+
+    self.obtenerFetch = function (doc) {
+      var defered = $q.defer();
+
+      doc.fetchBlob()
+        .then(function(res) {
+          defered.resolve(res.blob());
+
+        })
+        .catch(function(error){
+              defered.reject(error)
+          });
+      return defered.promise;
+    };
+
+      self.obtenerDoc().then(function(){
+
+         self.obtenerFetch(self.document).then(function(r){
+             self.blob=r;
+             var fileURL = URL.createObjectURL(self.blob);
+             self.content = $sce.trustAsResourceUrl(fileURL);
+             $window.open(fileURL, 'Soporte Cumplido', 'resizable=yes,status=no,location=no,toolbar=no,menubar=no,fullscreen=yes,scrollbars=yes,dependent=no,width=700,height=900', true);
+          });
+      });
     };
 
 
     /*
-      Función para consultar los datos del ordenador del contrato y los contratistas asociados a este
+      Función para "borrar" un documento
     */
-    self.obtener_informacion_ordenador = function () {
-      //Petición para obtener la información del ordenador del contrato
-      self.gridOptions1.data = [];
-      self.contratistas = [];
-
-      contratoRequest.get('ordenador', self.Documento).then(function (response) {
-
-        self.ordenador = response.data.ordenador;
-
-        //Petición para obtener el Id de la relación de acuerdo a los campos
-        adminMidRequest.get('aprobacion_pago/solicitudes_ordenador_contratistas/'+self.Documento).then(function (response) {
-          self.documentos = response.data;
-          self.gridOptions1.data = self.documentos;
+    self.enviar_comentario = function(documento){
+        swal({
+          title: '¿Está seguro(a) de enviar la observación?',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          cancelButtonText: 'Cancelar',
+          confirmButtonText: 'Aceptar'
+        }).then(function () {
+         documento.contenido = JSON.stringify(documento.contenido);
+         coreRequest.put('documento', documento.Id, documento).
+         then(function(response){
+              self.obtener_doc(self.fila_sol_pago);
         });
 
-
-      });
+        });
     };
 
-    self.obtener_informacion_ordenador();
 
-
-
-    self.aprobarPago = function (pago_mensual) {
-
-      contratoRequest.get('contrato', pago_mensual.NumeroContrato + '/' + pago_mensual.VigenciaContrato)
-      .then(function (response) {
-        self.aux_pago_mensual = pago_mensual;
-
-
-        administrativaRequest.get('estado_pago_mensual', $.param({
-          limit: 0,
-          query: 'CodigoAbreviacion:AP'
-        })).then(function (responseCod) {
-
-          var sig_estado = responseCod.data;
-          self.aux_pago_mensual.EstadoPagoMensual.Id = sig_estado[0].Id;
-
-          administrativaRequest.put('pago_mensual', self.aux_pago_mensual.Id, self.aux_pago_mensual)
-          .then(function (response) {
-
-            if(response.data==="OK"){
-
-              swal(
-                'Pago aprobado',
-                'Se ha registrado la aprobación del pago por parte del ordenador',
-                'success'
-              )
-              self.obtener_informacion_ordenador();
-              self.gridApi.core.refresh();
-             }else{
-
-
-              swal(
-                'Error',
-                'No se ha podido registrar la aprobación del pago',
-                'error'
-              );
-             }
-
-          });
-
-        })
-      });
-
-    };
-
-    self.rechazarPago = function (pago_mensual) {
-
-      contratoRequest.get('contrato', pago_mensual.NumeroContrato + '/' + pago_mensual.VigenciaContrato).then(function (response) {
-        self.aux_pago_mensual = pago_mensual;
-
-
-        administrativaRequest.get('estado_pago_mensual', $.param({
-          limit: 0,
-          query: 'CodigoAbreviacion:RP'
-        })).then(function (responseCod) {
-
-          var sig_estado = responseCod.data;
-          self.aux_pago_mensual.EstadoPagoMensual.Id = sig_estado[0].Id;
-
-
-
-          administrativaRequest.put('pago_mensual', self.aux_pago_mensual.Id, self.aux_pago_mensual)
-          .then(function (response) {
-
-            if(response.data==="OK"){
-
-              swal(
-                'Pago rechazado',
-                'Se ha registrado el rechazo del pago',
-                'success'
-              )
-              self.obtener_informacion_ordenador();
-              self.gridApi.core.refresh();
-             }else{
-
-
-              swal(
-                'Error',
-                'No se ha podido registrar el rechazo del pago',
-                'error'
-              );
-             }
-
-          });
-
-        })
-      });
-
-    };
 
     /*
       Función que genera el documento de quienes no cumplieron con sus obligaciones
-
-    self.getContenido = function(){
-      var date = new Date()
-      var dia = moment(date).format('D');
-      var mes = moment(date).format('M');
-      var anio = moment(date).format('YYYY');
-      var contenido = [];
-      contenido.push( {text:'EL SUSCRITO DECANO DE LA '+ self.facultad.Nombre +' DE LA UNIVERSIDAD DISTRITAL FRANCISCO JOSÉ DE CALDAS', bold: true,  alignment: 'center', style:'top_space'}, '\n\n\n\n');
-      contenido.push({text:'CERTIFICA QUE: ', bold: true,  alignment: 'center', style:'top_space'}, '\n\n\n\n');
-      contenido.push({text:'De acuerdo con la información suministrada por los proyectos curriculares de la '+ self.facultad.Nombre +', los profesores de Vinculación Especial contratados para el período académico 2018-I, cumplieron a cabalidad con las funciones docentes en el mes de '+ self.mes.Nombre +' del presente año. (De acuerdo a calendario académico).', style:'general_font'}, '\n\n')
-      if(self.docentes_pago_rechazado){
-        contenido.push({text:'A excepción de las siguientes novedades: ', style:'general_font'}, '\n')
-        angular.forEach(self.docentes_pago_rechazado, function(value) {
-         contenido.push({text: value.Nombre + ', ' + value.NumDocumento, style:'general_font'});
-       });
-      }
-      contenido.push('\n',{text:'La presente certificación se expide con destino a la División de Recursos Humanos el día ' + dia + ' del mes de ' + self.meses[mes-1].Nombre + ' de ' + anio +'.',  style:'general_font'}, '\n\n\n\n\n\n');
-      contenido.push({text:'' + self.ordenador.nombre, style:'bottom_space'});
-      contenido.push({text:'' + self.ordenador.cargo, style:'bottom_space'});
-      return contenido
-    }*/
-
-    /*
-      Función que genera el documento de quienes no cumplieron con sus obligaciones
-
+    */
     self.generarPDF = function (){
 
-      adminMidRequest.get('aprobacion_pago/dependencia_ordenador/' + self.Documento).
-      then(function(responseHom){
-        self.facultad_homologada = responseHom.data;
 
-            adminMidRequest.get('aprobacion_pago/certificacion_documentos_aprobados/' + self.facultad_homologada + '/' + self.mes.Id + '/' + self.anio).
-              then(function(response){
-                self.docentes_pago_rechazado = response.data;
+      homologacionDependenciaService.get('proyecto_curricular_snies', self.coordinador.codigo_snies).
+      then(function(response){
+        console.log(self.coordinador.codigo_snies);
+        self.proyecto_homologado = response.data.homologacion;
 
-                oikosRequest.get('dependencia/'+ self.facultad_homologada)
-                .then(function(responseFac)
+            //adminMidRequest.get('aprobacion_pago/certificacion_visto_bueno/*/**/*').
+            adminMidRequest.get('/aprobacion_pago/certificacion_visto_bueno/'+ self.proyecto_homologado.id_oikos +'/' + self.mes.Id + '/' + self.anio).
+              then(function(responseMid){
+               self.docentes_incumplidos = responseMid.data;
+
+                oikosRequest.get('dependencia_padre', $.param({
+                  query:'Hija:' + self.proyecto_homologado.id_oikos
+                })).then(function(responseHom)
               {
-                console.log(responseFac.data);
-                self.facultad = responseFac.data;
+                self.facultad = responseHom.data[0];
+
+                var date = new Date()
+                var dia = moment(date).format('D');
+                var mes = moment(date).format('M');
+                var anio = moment(date).format('YYYY');
+                var contenido = [];
+                //console.log(self.contenido);
+                contenido.push( {text:'EL SUSCRITO COORDINADOR DEL PROYECTO CURRICULAR DE ' + self.coordinador.nombre_proyecto_curricular + ' DE LA ' + self.facultad.Padre.Nombre + ' DE LA UNIVERSIDAD DISTRITAL FRANCISCO JOSÉ DE CALDAS', bold: true,  alignment: 'center', style:'top_space'}, '\n\n\n\n');
+                //console.log(self.contenido);
+                contenido.push({text:'CERTIFICA QUE: ', bold: true,  alignment: 'center', style:'top_space'}, '\n\n\n\n');
+                contenido.push({text:'Los Docentes de Vinculación Especial contratados para el periodo Académico 2018-1, del Proyecto Curricular de ' + self.coordinador.nombre_proyecto_curricular + ' cumplieron a cabalidad con las funciones docentes durante el mes de ' +self.mes.Nombre+ ' de ' +self.anio+ ' (según calendario académico).', style:'general_font'}, '\n\n')
+                if(self.docentes_incumplidos){
+                  contenido.push({text:'A excepción de las siguientes novedades: ', style:'general_font'}, '\n')
+                  angular.forEach(self.docentes_incumplidos, function(value) {
+                   contenido.push({text: value.NumDocumento + ', ' + value.Nombre + ', ' + value.NumeroContrato + ', No se le aprueba cumplido.', style:'lista'});
+                 });
+                }
+                contenido.push('\n',{text:'La presente certificación se expide el día ' + dia + ' del mes de ' + self.meses[mes-1].Nombre + ' de ' + anio +'.',  style:'general_font'}, '\n\n\n\n\n\n');
+                contenido.push({text:'' + self.coordinador.nombre_coordinador, style:'bottom_space'});
+                contenido.push({text:'Coordinador', style:'bottom_space'});
+                contenido.push({text:'Proyecto Curricular ' + self.coordinador.nombre_proyecto_curricular, style:'bottom_space'});
+
 
                 //Generación documento
                 var docDefinition = {
@@ -344,7 +447,7 @@ angular.module('contractualClienteApp')
                    margin: [100, 15,5,5],
                    alignment: 'center'
                  },
-                 content: self.getContenido(),
+                 content: contenido,
                  styles: {
                    top_space: {
                      fontSize: 11,
@@ -359,6 +462,10 @@ angular.module('contractualClienteApp')
                    general_font:{
                      fontSize: 11,
                      alignment: 'justify'
+                   },
+                   lista:{
+                     fontSize: 9,
+                     alignment:'justify'
                    }
                  }
                 }
@@ -366,56 +473,17 @@ angular.module('contractualClienteApp')
                 //Variable para obtener la fecha y hora que se genera el dcoumento
                 var date = new Date();
                 date = moment(date).format('DD_MMM_YYYY_HH_mm_ss');
+                //console.log(self.contenido);
+                pdfMake.createPdf(docDefinition).download('Certificación cumplido coordinación ' + date + '.pdf');
+
+
+              });
+                //console.log(self.contenido);
+
 
                 //Sirve para descargar el documento y setearle el nombre
-                pdfMake.createPdf(docDefinition).download('Certificación cumplido para pago ' + date + '.pdf');
+              //  pdfMake.createPdf(docDefinition).download('Certificación cumplido coordinación ' + date + '.pdf');
                });
           });
-      });//Peticion Oikos
-
-    };*/
-
-
-
-
-  self.aprobar_multiples_pagos =function(){
-
-
-
-    swal({
-      title: '¿Está seguro(a) de aprobar varias solicitudes a la vez?',
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Aceptar'
-    }).then(function () {
-      adminMidRequest.post('aprobacion_pago/aprobar_pagos',self.solicitudes_seleccionadas).then(function(response){
-        if (response.data === 'OK'){
-          swal(
-            'Pagos Aprobados',
-            'Se han aprobado los pagos de las solicitudes seleccionadas',
-            'success'
-          )
-          self.obtener_informacion_ordenador();
-          self.gridApi.core.refresh();
-
-
-        }else{
-
-          swal(
-            'Error',
-            'No se han podido aprobar los pagos de las solicitudes seleccionadas',
-            'error'
-          );
-
-        }
-      });
-    });
-
-
-  }
-
-
-  });
+    };
+});

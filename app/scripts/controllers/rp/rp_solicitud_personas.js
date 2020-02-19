@@ -11,7 +11,7 @@ angular.module('contractualClienteApp')
     .factory("contrato", function() {
         return {};
     })
-    .controller('RpSolicitudPersonasCtrl', function($window, $filter, gridOptionsService, contratoRequest, requestRequest, administrativaRequest, $scope, contrato, resolucion, financieraRequest, financieraMidRequest, amazonAdministrativaRequest, adminMidRequest, $translate, disponibilidad) {
+    .controller('RpSolicitudPersonasCtrl', function($window, $filter, gridOptionsService, contratoRequest, requestRequest, administrativaRequest, $scope, contrato, resolucion, financieraRequest, financieraMidRequest, amazonAdministrativaRequest, adminMidRequest, $translate, disponibilidad, resolucionRequest) {
         var self = this;
         self.offset = 0;
         self.filter = '';
@@ -26,6 +26,8 @@ angular.module('contractualClienteApp')
         self.disponibilidad = disponibilidad;
         $scope.vigenciaModel = null;
         $scope.vigencias = null;
+        var fecha_actual = new Date();
+        $scope.vigencia_actual  = fecha_actual.getFullYear();
         $scope.vigencias_resoluciones = null;
         $scope.contrato_int = $translate.instant('CONTRATO');
         $scope.vigencia_contrato = $translate.instant('VIGENCIA_CONTRATO');
@@ -61,13 +63,15 @@ angular.module('contractualClienteApp')
             columnDefs: [
 
                 { field: 'Id', visible: false },
-                { field: 'Numero_suscrito', width: '14%', displayName: $translate.instant('VINCULACION'), },
+                { field: 'Numero_contrato', width: '14%', displayName: $translate.instant('VINCULACION'), },
                 { field: 'Vigencia_contrato', width: '12%', displayName: $translate.instant('VIGENCIA') },
                 { field: 'Nombre_completo', width: '40%', displayName: $translate.instant('NOMBRE') },
                 { field: 'Id', width: '14%', displayName: $translate.instant('DOCUMENTO') },
                 { field: 'Valor_contrato', width: '20%', cellTemplate: '<div align="right">{{row.entity.Valor_contrato | currency:undefined:0 }}</div>', displayName: $translate.instant('VALOR') }
             ]
         };
+
+
 
         //GRID CONTRATISTAS
         self.gridOptionsContratistas = {
@@ -125,25 +129,25 @@ angular.module('contractualClienteApp')
             multiSelect: false,
             rowHeight: 40,
             columnDefs: [{
-                    field: 'Id',
+                    field: 'Resolucion.Id',
                     visible: false
                 },
                 {
-                    field: 'NumeroResolucion',
+                    field: 'Resolucion.NumeroResolucion',
                     displayName: $translate.instant('NUMERO_RESOLUCION'),
                 },
                 {
-                    field: 'Vigencia',
+                    field: 'Resolucion.Vigencia',
                     displayName: $translate.instant('VIGENCIA'),
                 },
                 {
-                    field: 'IdTipoResolucion.NombreTipoResolucion',
+                    field: 'Resolucion.IdTipoResolucion.NombreTipoResolucion',
                     displayName: $translate.instant('TIPO_RESOLUCION'),
                 },
                 {
-                    field: 'FechaRegistro',
+                    field: 'Resolucion.FechaExpedicion',
                     displayName: $translate.instant('FECHA'),
-                    cellTemplate: '<div align="center">{{row.entity.FechaRegistro | date:"yyyy-MM-dd":"+0900" }}</div>'
+                    cellTemplate: '<div align="center">{{row.entity.Resolucion.FechaExpedicion | date:"dd-MM-yyyy":"+0900" }}</div>'
                 },
                 {
                     field: 'Boton',
@@ -277,9 +281,11 @@ angular.module('contractualClienteApp')
 
                 //selecciona la vigencia actual
 
+                http://10.20.0.254/resoluciones_crud/v1/resolucion_estado
+
                 self.gridOptions = {};
                 self.carga = true;
-                gridOptionsService.build(amazonAdministrativaRequest, 'resolucion/resolucion_por_estado/' + vigenciaActual + '/' + '/2', '', self.gridOptionsResolucion).then(function(data) {
+                gridOptionsService.build(resolucionRequest, 'resolucion_estado/' ,'query=Resolucion.Vigencia:'+vigenciaActual + ',Estado.Id:2&limit=-1' , self.gridOptionsResolucion).then(function(data) {
                     self.gridOptions = data;
                     self.gridOptions.onRegisterApi = function(gridApi) {
                         self.gridApi = gridApi;
@@ -384,7 +390,7 @@ angular.module('contractualClienteApp')
             self.resolucionVigencia = resolucion.Vigencia;
             //
             //peticion para traer los docentes asociados a una resolucion
-            amazonAdministrativaRequest.get('vinculacion_docente', "limit=-1&query=IdResolucion.Id:" + resolucion.Id + ",Estado:true").then(function(response) {
+            resolucionRequest.get('vinculacion_docente', "limit=-1&query=IdResolucion.Id:" + resolucion.Resolucion.Id + ",Estado:true").then(function(response) {
                 if (response.data !== null) {
                     vinculacion_docente = response.data;
                     //consulta para traer la informacion de las personas de los docentes asociados a una resolucion
@@ -398,11 +404,15 @@ angular.module('contractualClienteApp')
 
                     }
                 }
+                else{
+                    existe_contrato = false;
+                    self.no_datos = true;
+                }
             });
         };
 
         self.buscar_personas = function(numContrato, vigenciaContrato, existe_contrato, vinculacion_docente) {
-            amazonAdministrativaRequest.get('proveedor_contrato_persona/' + numContrato + "/" + vigenciaContrato, "", "").then(function(response) {
+            amazonAdministrativaRequest.get('proveedor_contrato_persona/' + numContrato.String + "/" + vigenciaContrato.Int64, "", "").then(function(response) {
                 if (response.data !== null) {
                     existe_contrato = true;
                     resoluciones.push(response.data[0]);
@@ -460,7 +470,7 @@ angular.module('contractualClienteApp')
                     // si es solicitud por resolucion
                 } else if ($scope.radioB === 3) {
                     self.resolucion.push(seleccion[0]);
-                    amazonAdministrativaRequest.get('vinculacion_docente', "limit=-1&query=IdResolucion.Id:" + seleccion[0].Id + ",Estado:true").then(function(response) {
+                    resolucionRequest.get('vinculacion_docente', "limit=-1&query=IdResolucion.Id:" + seleccion[0].Resolucion.Id + ",Estado:true").then(function(response) {
                         if (response.data !== null) {
                             vinculacion_docente = response.data;
                             //consulta para traer la informacion de las personas de los docentes asociados a una resolucion
@@ -495,7 +505,9 @@ angular.module('contractualClienteApp')
         };
 
         self.generar_txt_cdp = function(numContrato, vigenciaContrato, vinculacion_docente) {
-            amazonAdministrativaRequest.get('proveedor_contrato_persona/' + numContrato + "/" + vigenciaContrato, "").then(function(response) {
+
+            
+            amazonAdministrativaRequest.get('proveedor_contrato_persona/' + numContrato.String + "/" + vigenciaContrato.Int64 , "").then(function(response) {
                 if (response.data !== null) {
                     self.contrato.push(response.data[0]);
                 } else {

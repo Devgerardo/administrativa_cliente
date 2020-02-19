@@ -1,0 +1,37 @@
+{
+    "RolesList": [
+        "ORDENADOR_DEL_GASTO",
+        "SUPERVISOR",
+        "DECANO",
+        "regionalClerksRole",
+        "SOPORTE_OAS"
+    ],
+    "Controllers": {
+        "NecesidadesCtrl": {
+            "RolesList": [
+                "ORDENADOR_DEL_GASTO",
+                "SUPERVISOR",
+                "DECANO",
+                "regionalClerksRole",
+                "SOPORTE_OAS"
+            ],
+            "Buttons": {
+                "AprobarNecesidad": {
+                    "ORDENADOR_DEL_GASTO": true,
+                    "DECANO": true
+                },
+                "RechazarNecesidad": {
+                    "ORDENADOR_DEL_GASTO": true,
+                    "DECANO": true
+                },
+                "SolicitarCDP": {
+                    "ORDENADOR_DEL_GASTO": true,
+                    "DECANO": true
+                },
+                "EditarNecesidad": {
+                    "SUPERVISOR": true
+                }
+            }
+        }
+    }
+}

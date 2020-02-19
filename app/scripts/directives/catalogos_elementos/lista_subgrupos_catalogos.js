@@ -27,6 +27,7 @@ angular.module('contractualClienteApp')
                     enableVerticalScrollbar: 0,
                     useExternalPagination: false,
                     enableSelectAll: false,
+                    enablePaginationControls: true,
                     columnDefs: [{
                             field: 'ElementoCodigo',
                             displayName: $translate.instant('CODIGO'),
@@ -68,19 +69,6 @@ angular.module('contractualClienteApp')
                 })).then(function(response) {
                     self.gridOptions.data = response.data;
                 });
-
-                $scope.$watch('[d_listaSubgruposCatalogos.gridOptions.paginationPageSize,d_listaSubgruposCatalogos.gridOptions.data]', function() {
-                    if ((self.gridOptions.data.length <= self.gridOptions.paginationPageSize || self.gridOptions.paginationPageSize === null) && self.gridOptions.data.length > 0) {
-                        $scope.gridHeight = self.gridOptions.rowHeight * 2 + (self.gridOptions.data.length * self.gridOptions.rowHeight);
-                        if (self.gridOptions.data.length <= 5) {
-                            self.gridOptions.enablePaginationControls = false;
-                        }
-                    } else {
-                        $scope.gridHeight = self.gridOptions.rowHeight * 3 + (self.gridOptions.paginationPageSize * self.gridOptions.rowHeight);
-                        self.gridOptions.enablePaginationControls = true;
-                    }
-                }, true);
-
 
             },
             controllerAs: 'd_listaSubgruposCatalogos'

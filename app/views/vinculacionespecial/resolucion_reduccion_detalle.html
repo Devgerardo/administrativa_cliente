@@ -1,30 +1,38 @@
 <div class="panel panel-primary panel-body">
-	<h2 class="page-header text-center">{{ 'TITULO_VIN_DOC' | translate }} <br> {{ 'TITULO_RES' | translate }} {{resolucionReduccionDetalle.resolucion.Numero}} <br> {{resolucionReduccionDetalle.resolucion.Dedicacion}} </h2>
+	<h2 class="page-header text-center">{{ 'TITULO_VIN_DOC' | translate }}
+		<br> {{ 'TITULO_RES' | translate }} {{resolucionReduccionDetalle.resolucion.Numero}}
+		<br> {{resolucionReduccionDetalle.resolucion.Dedicacion}} </h2>
 	<div class="row">
-			<div class="col-md-12">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="intro-text"> Docentes vinculados a resolución de adicion </h4>
-					</div>
-					<br>
-					<div class="col-md-2">
-						<center><label> {{ 'SELECCIONE_PROY' | translate }}</label></center>
-					</div>
-					<div class="col-md-10">
-						<select class="form-control" ng-model="resolucionReduccionDetalle.term" ng-change="resolucionReduccionDetalle.get_docentes_vinculados_adicion()">
-							<option ng-selected="{{proyecto.Id == resolucionReduccionDetalle.defaultSelectedPrecont}}" ng-repeat="proyecto in resolucionReduccionDetalle.proyectos" value="{{proyecto.Id}}">{{proyecto.Nombre}}</option>
-						</select>
-					</div>
-					<br>
-					<div class="panel-body">
-						<br>
-						<div ui-grid="resolucionReduccionDetalle.precontratados_adicion" ui-grid-selection ui-grid-pagination class="grid" ng-hide="resolucionReduccionDetalle.estado"></div>
-						<center><loading load="resolucionReduccionDetalle.estado" tam="5"></loading><center>
-						</div>
-
-
-					</div>
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="intro-text"> {{ ' TITULO_DOC_VIN_RES_RED' | translate }} </h4>
 				</div>
-			</div>
+				<br>
+				<div class="col-md-2">
+					<center>
+						<label> {{ 'SELECCIONE_PROY' | translate }}</label>
+					</center>
+				</div>
+				<div class="col-md-10">
+					<select class="form-control" ng-model="resolucionReduccionDetalle.term" ng-change="resolucionReduccionDetalle.get_docentes_vinculados_adicion()">
+						<option value="">{{ 'TODOS_PROY' | translate }}</option>
+						<option ng-selected="{{proyecto.Id == resolucionReduccionDetalle.defaultSelectedPrecont}}" ng-repeat="proyecto in resolucionReduccionDetalle.proyectos"
+						 value="{{proyecto.Id}}">{{proyecto.Nombre }}</option>
+					</select>
+				</div>
+				<br>
+				<div class="panel-body">
+					<br>
+					<div ui-grid="resolucionReduccionDetalle.precontratados_adicion" ui-grid-selection ui-grid-pagination class="grid"></div>
+					<center>
+						<loading load="resolucionReduccionDetalle.estado" tam="5" style="position: absolute; z-index: 10; top:50%;"></loading>
+						<center>
+				</div>
 
+
+			</div>
+		</div>
 	</div>
+
+</div>

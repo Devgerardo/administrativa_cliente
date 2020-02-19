@@ -19,7 +19,7 @@
                 <label>{{'PRO_CURR' | translate}}</label>
                 <select class="form-control" required="" ng-model="aprobacionCoordinador.coordinador" class="form-control">
                   <option value="">---Seleccione el proyecto curricular del certificado---</option>
-                  <option ng-repeat="iProyec in aprobacionCoordinador.proyectos_coordinador" ng-value="iProyec">{{iProyec.nombre_proyecto_curricular}}</option>
+                  <option ng-repeat="iProyec in aprobacionCoordinador.proyectos_coordinador" ng-value="iProyec">{{iProyec.nombre_proyecto_condor}}</option>
                 </select>
               </div>
 
@@ -38,6 +38,14 @@
                 <select ng-model="aprobacionCoordinador.anio" class="form-control">
                   <option value="">---Seleccione el año del certificado---</option>
                   <option ng-repeat="iAnio in aprobacionCoordinador.anios" ng-value="iAnio">{{iAnio}} </option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label>{{'SEL_PERIODO' | translate }}</label>
+                <select ng-model="aprobacionCoordinador.periodo" class="form-control">
+                  <option value="">---Seleccione el periodo del certificado---</option>
+                  <option ng-repeat="iPeriodo in aprobacionCoordinador.periodos" ng-value="iPeriodo">{{iPeriodo}} </option>
                 </select>
               </div>
 

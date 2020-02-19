@@ -1,0 +1,91 @@
+<br>
+<div class="panel panel-default">
+  <center><h3 class="titulo-centrado">{{'ACTA_REINICIO' | translate}}</h3></center>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class=" panel panel-primary" >
+          <div class="panel-heading"><center><h4><b>{{'INFORMACION' | translate}}</b></h4></center></div>
+          <div class="panel-body">
+            <div class="col-md-6"><b>{{'NUMERO_CONTRATO' | translate}}</b></div>
+            <div class="col-md-6"><p>{{sLactaReinicio.contrato_obj.id}}</p></div>
+            <div class="col-md-6"><b>{{'CONTRATANTE' | translate}}</b></div>
+            <div class="col-md-6"><p>{{'UNIVERSIDAD_NOMBRE' | translate}}</p></div>
+            <div class="col-md-6"><b>{{'CONTRATISTA' | translate}}</b></div>
+            <div class="col-md-6" ng-if="sLactaReinicio.contrato_obj.contratista_documento != null">
+              <p>
+                {{sLactaReinicio.contrato_obj.contratista_nombre}} <br>
+                <span style="color:#555; font-size:14px;">
+                  {{sLactaReinicio.contrato_obj.contratista_documento}}
+                </span>
+              </p>
+            </div>
+            <div class="col-md-6" ng-if="sLactaReinicio.contrato_obj.contratista_documento == null">
+              <p>{{'NO_REGISTRA' | translate}}</p>
+            </div>
+            <div class="col-md-6"><b>{{'SUPERVISOR' | translate}}</b></div>
+            <div class="col-md-6" ng-if="sLactaReinicio.contrato_obj.supervisor_nombre != null">
+              <p>{{sLactaReinicio.contrato_obj.supervisor_nombre}}</p>
+            </div>
+            <div class="col-md-6" ng-if="sLactaReinicio.contrato_obj.supervisor_nombre == null">
+              <p>No registra</p>
+            </div>
+            <div class="col-md-6"><b>{{'OBJETO' | translate}}</b></div>
+            <div class="col-md-6"> <p>{{sLactaReinicio.contrato_obj.objeto}}</p></div>
+            <div class="col-md-6"><b>{{'VALOR' | translate}}</b></div>
+            <div class="col-md-6"><p>{{sLactaReinicio.contrato_obj.valor | currency}}</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class=" panel panel-primary" >
+          <div class="panel-heading"><center><h4><b>{{'INFORMACION_NOVEDAD' | translate}}</b></h4></center></div>
+          <div class="panel-body">
+            <form name="formReinicio">
+              <div class="col-md-6">
+                <label>
+                  {{'NUMERO_SOLICITUD' | translate}}
+                </label> <br>
+                <md-input-container style="margin:0;">
+                  <input type="number" id="n_solicitud" name="n_solicitud" required ng-model="sLactaReinicio.n_solicitud" ng-disabled="false" min="0">
+                  <div ng-messages="formReinicio.n_solicitud.$error">
+                    <div ng-message="required">{{'CAMPO_REQUERIDO' | translate}}</div>
+                  </div>
+                </md-input-container>
+              </div>
+
+              <div class="col-md-6">
+                <label for="perido">{{'PERIODO_SUSPENSION' | translate}}</label><br>
+                <md-input-container style="margin:0;">
+                  <input type="number" name="diff_dias" ng-model="sLactaReinicio.diff_dias" required id="periodo" ng-disabled="true" min="0">
+                  <div ng-messages="formReinicio.diff_dias.$error">
+                    <div ng-message="required">
+                      {{'CAMPO_REQUERIDO' | translate}}
+                    </div>
+                  </div>
+                </md-input-container>
+              </div>
+
+              <div class="form-group col-md-6" >
+                <label for="fechainicio">{{'FECHA_SUSPENSION' | translate}}</label> <br>
+                <md-datepicker ng-model="sLactaReinicio.f_suspension" ng-disabled="true"></md-datepicker>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="fechareinicio">{{'FECHA_REINICIO' | translate}}</label> <br>
+                <md-datepicker ng-model="sLactaReinicio.f_reinicio" md-min-date="sLactaReinicio.f_suspension"></md-datepicker>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+  <div class="panel-footer">
+    <center>  <button class="btn btn-primary btn-lg" ng-click="sLactaReinicio.generarActa()">{{'CREAR_NOVEDAD_REINICIO' | translate}}</button> </center>
+  </div>
+</div>

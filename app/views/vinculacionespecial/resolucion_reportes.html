@@ -1,0 +1,44 @@
+<div class="panel panel-primary panel-body">
+  <h2 class="page-header text-center">{{ 'REPORTES' | translate }}{{ 'RESOLUCIONES' | translate }}</h2>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-3">
+        <label>{{ 'REPORTE' | translate }}</label>
+        <!-- TODO: Estandarizar los reportes que se hagan y quitar hardcoding -->
+        <select class="form-control" ng-model="resolucionReportes.nombreReporte">
+          <option value="" disabled>{{"SELECCIONE_REPORTE" | translate}}</option>
+          <option value="DocentesResolucion">{{"REPORTE_UNO" | translate}}</option>
+        </select>
+      </div>
+      <div ng-show="resolucionReportes.nombreReporte=='DocentesResolucion'">
+        <div class="col-md-3" >
+          <label>{{ 'FACULTAD' | translate }}</label>
+          <select class="form-control" ng-model="resolucionReportes.facultad" required>
+            <option value="" disabled>{{'SELECCIONE' | translate }}</option>
+            <option ng-repeat="facultad in resolucionReportes.facultades" ng-value={{facultad.DependenciaId.Id}}> {{facultad.DependenciaId.Nombre}}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label>{{ 'NUMERO_RESOLUCION' | translate }}</label>
+          <input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionReportes.numeroResolucion" required>
+        </div>
+        <div class="col-md-3">
+          <label>{{ 'VIGENCIA' | translate }}</label>
+          <select class="form-control" ng-model="resolucionReportes.vigencia" required>
+            <option value="" disabled>{{'SELECCIONE' | translate }}</option>
+            <option ng-repeat="vigencia in resolucionReportes.vigencias" ng-value={{vigencia}}> {{vigencia}}</option>
+          </select>
+        </div>
+        <div class="form-group col-lg-2 col-lg-offset-10">
+          <br>
+          <input type="submit" class="form-control btn btn-success" value="{{'GENERAR_REPORTE' | translate }}" ng-click="resolucionReportes.consultarReporte()">
+        </div>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" ng-show="resolucionReportes.resolucionId !== 0">
+          <reportes-spagobi reporte={{resolucionReportes.nombreReporte}} resolucion={{resolucionReportes.resolucionId}} vigencia="resolucionReportes.vigencia"></reportes-spagobi>
+        </div>
+    </div>
+  </div>
+</div>

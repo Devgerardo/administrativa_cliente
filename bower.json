@@ -10,11 +10,11 @@
     "angular-route": "^1.6.10",
     "angular-sanitize": "^1.6.10",
     "angular-touch": "^1.6.10",
-    "angular-ui-grid": "*",
+    "angular-ui-grid": "4.6.0",
     "AngularJS-OAuth2": "angularjs-oauth2#^1.2.1",
-    "angular-material": "*",
-    "angular-tree-control": "*",
-    "pdfmake": "*",
+    "angular-material": "1.1",
+    "angular-tree-control": "0.2",
+    "pdfmakeoas": "0.0.2",
     "ngstorage": "^0.3.11",
     "kjur-jsrsasign": "jsrsasign#^7.0.0",
     "angular-websocket": "^2.0.0",
@@ -34,7 +34,9 @@
     "select2": "~3.4.5",
     "angular-file-model": "^0.3.1",
     "angular-bootstrap-fileinput": "^0.1.0",
-    "nuxeo": "^3.5.0"
+    "nuxeo": "^3.5.0",
+    "colombia-holidays": "^0.0.6",
+    "excel-builder-js": "excelbuilder#^2.0.2"
   },
   "resolutions": {
     "angular": "1.6.10",

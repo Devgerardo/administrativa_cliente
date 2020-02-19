@@ -392,4 +392,4 @@ angular.module('contractualClienteApp')
 
         });
     };
-  });
+});

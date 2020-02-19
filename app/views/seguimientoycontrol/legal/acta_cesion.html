@@ -1,0 +1,136 @@
+<br>
+<div class="panel panel-default">
+<center><h3 class="titulo-centrado">{{'ACTA_CESION' | translate}}</h3></center>
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class=" panel panel-primary" >
+            <div class="panel-heading"><center><h4><b>{{'INFORMACION' | translate}}</b></h4></center></div>
+            <div class="panel-body">
+              <div class="col-md-6"><b>{{'NUMERO_CONTRATO' | translate}}</b></div>
+              <div class="col-md-6"><p>{{sLactaCesion.contrato_obj.id}}</p></div>
+              <div class="col-md-6"><b>{{'CONTRATANTE' | translate}}</b></div>
+              <div class="col-md-6"><p>{{'UNIVERSIDAD_NOMBRE' | translate}}</p></div>
+              <div class="col-md-6"><b>{{'CONTRATISTA' | translate}}</b></div>
+              <div class="col-md-6" ng-if="sLactaCesion.contrato_obj.contratista_documento != null">
+                <p>
+                  {{sLactaCesion.contrato_obj.contratista_nombre}} <br>
+                  <span style="color:#555; font-size:14px;">
+                    {{sLactaCesion.contrato_obj.contratista_documento}}
+                  </span>
+                </p>
+              </div>
+              <div class="col-md-6" ng-if="sLactaCesion.contrato_obj.contratista_documento == null">
+                <p>{{'NO_REGISTRA' | translate}}</p>
+              </div>
+              <div class="col-md-6"><b>{{'OBJETO' | translate}}</b></div>
+              <div class="col-md-6"><p>{{sLactaCesion.contrato_obj.objeto}}</p>
+              </div>
+              <div class="col-md-6"><b>{{'VALOR_CONTRATO' | translate}}</b></div>
+              <div class="col-md-6"><p>{{sLactaCesion.contrato_obj.valor | currency}}</p></div>
+              <div class="col-md-6"><b>{{'ORDENADOR_DE_GASTO' | translate}}</b></div>
+              <div class="col-md-6"><p>{{sLactaCesion.contrato_obj.ordenador_gasto_nombre}}</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class=" panel panel-primary" >
+            <div class="panel-heading"><center><h4><b>{{'INFORMACION_NOVEDAD' | translate}}</b></h4></center></div>
+            <div class="panel-body">
+              <form name="formCesion">
+
+                <div class="col-md-6">
+                  <label>
+                    {{'NUMERO_SOLICITUD' | translate}}
+                  </label>
+                  <br>
+                  <md-input-container style="margin:0;">
+                    <input type="number" id="n_solicitud" name="n_solicitud" required ng-model="sLactaCesion.n_solicitud" ng-disabled="false" min="0">
+                    <div ng-messages="formCesion.n_solicitud.$error">
+                      <div ng-message="required">{{'CAMPO_REQUERIDO' | translate}}</div>
+                    </div>
+                  </md-input-container>
+                </div>
+
+                <div class="col-md-6">
+                  <label style="width:100%;">
+                    {{'NUMERO_OFICIO' | translate}}
+                  </label>
+                  <md-input-container style="margin:0;">
+                    <input type="number" name="num_oficio" ng-model="sLactaCesion.num_oficio" required id="oficio" >
+                    <div ng-messages="formCesion.num_oficio.$error">
+                      <div ng-message="required">{{'CAMPO_REQUERIDO' | translate}}</div>
+                    </div>
+                  </md-input-container>
+                </div>
+
+                <div class="col-md-6" >
+                  <label for="fechaoficio form-group">{{'FECHA_OFICIO' | translate}}</label> <br>
+                  <md-datepicker ng-model="sLactaCesion.f_oficio" md-placeholder="Ingrese fecha"></md-datepicker>
+                </div>
+
+                <div class="form-group col-md-6" >
+                  <label for="fechacesion">{{'FECHA_CESION' | translate}}</label><br>
+                  <md-datepicker ng-model="sLactaCesion.f_cesion" md-min-date="sLactaCesion.f_hoy" md-placeholder="Ingrese fecha"></md-datepicker>
+                </div>
+
+                <div class="col-md-6 form-group">
+                  <label>{{'CEDULA_CESIONARIO' | translate}}</label>
+                  <md-autocomplete
+                  style="position:relative; top:-10px; max-height:45px;"
+                  md-floating-label=" "
+                  md-search-text="sLactaCesion.texto_busqueda"
+                  md-items="item in sLactaCesion.persona_natural_grep"
+                  md-item-text="item.Id+''"
+                  md-selected-item="sLactaCesion.persona_sel"
+                  md-selected-item-change="sLactaCesion.persona_sel_change(item)"
+                  md-search-text-change="sLactaCesion.cargar_persona_natural(sLactaCesion.texto_busqueda)">
+                  <md-item-template class="md-block">
+                    <span style="display:block; line-height: normal;vertical-align: top; padding-top: 7px;">{{item.Id}}</span>
+                    <span style="display:block; color:#888; line-height:normal; font-size:12px; ">
+                      {{item.PrimerNombre}} {{item.PrimerApellido}}
+                    </span>
+                  </md-item-template>
+                    <md-not-found>
+                      No match found.
+                    </md-not-found>
+                  </md-autocomplete>
+                </div>
+
+              <div class="form-group col-md-12" >
+                <label for="consideraciones">{{'OTRAS_OBSERVACIONES' | translate}}</label>
+                <textarea class="form-control" required name="observaciones" style="border-radius:0;" ng-model="sLactaCesion.observaciones" id="observaciones" rows="3"></textarea>
+              </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class=" panel panel-primary" >
+            <div class="panel-heading"><center><h4><b>{{'INFORMACION_CESIONARIO' | translate}}</b></h4></center></div>
+            <div class="panel-body">
+              <div ng-if="sLactaCesion.cesionario_obj.nombre == null">
+                {{'SELECCIONAR_CESIONARIO' | translate}}
+              </div>
+              <div ng-if="sLactaCesion.cesionario_obj.nombre != null">
+                <div class="col-md-6"><b>{{'NOMBRES' | translate}}</b></div>
+                <div class="col-md-6"> {{sLactaCesion.cesionario_obj.nombre}}</div>
+                <div class="col-md-6"><b>{{'APELLIDOS' | translate}}</b></div>
+                <div class="col-md-6"> {{sLactaCesion.cesionario_obj.apellidos}} </div>
+                <div class="col-md-6"><b>{{'TIPO_DOCUMENTO' | translate}}</b></div>
+                <div class="col-md-6"> {{sLactaCesion.cesionario_obj.tipo_documento}}</div>
+                <div class="col-md-6"><b>{{'DOCUMENTO_CONTRATISTA' | translate}}</b></div>
+                <div class="col-md-6"> {{sLactaCesion.cesionario_obj.identificacion}} </div>
+                <div class="col-md-6"><b>{{'TIPO_PERSONA' | translate}}</b></div>
+                <div class="col-md-6"> {{'PERSONA_NATURAL' | translate}} </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="panel-footer">
+      <center><button class="btn btn-primary btn-lg" ng-click="sLactaCesion.generarActa()">{{'CREAR_NOVEDAD_CESION' | translate}}</button></center>
+    </div>
+</div>

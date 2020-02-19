@@ -1,4 +1,4 @@
-<div class="panel panel-primary panel-body">
+<div class="panel panel-primary panel-body" >
     <h3 class="page-header text-center">{{ 'INFORMACION_MODIFICACION' | translate }}</h3>
     <div class="panel-body">
         <div class="row">
@@ -7,30 +7,19 @@
                     <div class="panel-body" ng-show="info_basico">
                         <form role="form">
                             <div class="row">
-                                <div class="form-group col-lg-4">
+                                <div class="form-group col-lg-6">
                                     <label>{{ 'VIGENCIA' | translate }}</label>
                                     <input type="number" class="form-control" ng-model="contratoRegistroHoras.contratoGeneralBase.Contrato.Vigencia" disabled>
                                 </div>
-                                <div class="form-group col-lg-4">
+                                <div class="form-group col-lg-6">
                                     <label>{{ 'FORMA_PAGO' | translate }}</label>
                                     <input type="text" class="form-control" ng-model="contratoRegistroHoras.forma_pago_defecto.Descripcion" disabled>
                                 </div>
-                                <div class="form-group col-lg-4">
+                                <div class="form-group col-lg-12">
                                     <label>{{ 'SEDE_SOLICITANTE' | translate }}</label>
                                     <input type="text" class="form-control" ng-model="contratoRegistroHoras.sede_solicitante_defecto" disabled>
                                 </div>
-                                <div class="form-group col-lg-4">
-                                    <label>{{ 'DESCRIPCION_FORMA_PAGO' | translate }}</label>
-                                    <input type="text" class="form-control" ng-model="contratoRegistroHoras.contratoGeneralBase.Contrato.DescripcionFormaPago" disabled>
-                                </div>
-                                <div class="form-group col-lg-4">
-                                    <label>{{ 'UNIDAD_EJECUTORA' | translate }}</label>
-                                    <input type="text" class="form-control" ng-model="contratoRegistroHoras.unidad_ejecutora_defecto.Nombre" disabled>
-                                </div>
-                                <div class="form-group col-lg-4">
-                                    <label>{{ 'MARCO_LEGAL' | translate }}</label>
-                                    <input type="text" class="form-control" ng-model="contratoRegistroHoras.regimen_contratacion_defecto.Descripcion" disabled>
-                                </div>
+                                
                             </div>
                         </form>
                     </div>
@@ -49,14 +38,10 @@
                             </div>
                         </form>
                     </div>
-                <legend class="text-primary" ng-click="info_acta=!info_acta">{{ 'PERIODO_VINCULACION' | translate }}<span class="fa fa-plus pull-right" ng-show="!info_acta"></span> <span class="fa fa-minus pull-right" ng-show="info_acta"></span></legend>
+                <legend class="text-primary" ng-click="info_acta=!info_acta">{{ 'DESCRIPCION' | translate }}<span class="fa fa-plus pull-right" ng-show="!info_acta"></span> <span class="fa fa-minus pull-right" ng-show="info_acta"></span></legend>
                     <div class="panel-body" ng-show="info_acta">
-                        <form role="form">
+                        <form role="form" name="form">
                             <div class="row">
-                                <div class="form-group col-lg-6">
-                                    <label>{{ 'FECHA_INICIO' | translate }}</label>
-                                    <md-datepicker ng-model="contratoRegistroHoras.acta.FechaInicio" md-current-view="year" md-placeholder="Elija fecha inicio" required></md-datepicker>
-                                </div>
                                 <div class="form-group col-lg-12">
                                         <label>{{ 'DESCRIPCION' | translate }}</label>
                                         <textarea rows="4" type="text" class="form-control" ng-model="contratoRegistroHoras.acta.Descripcion" required></textarea>
@@ -64,13 +49,13 @@
                             </div>
                         </form>
                     </div>
-                <legend class="text-primary" ng-click="info_exp=!info_exp">{{ 'DATOS_EXPEDICION' | translate }}<span class="fa fa-plus pull-right" ng-show="!info_exp"></span> <span class="fa fa-minus pull-right" ng-show="info_exp"></span></legend>
-                    <div class="panel-body" ng-show="info_exp">
-                        <form role="form">
+                    <legend class="text-primary" ng-click="info_exp=!info_exp">{{ 'DATOS_EXPEDICION' | translate }}<span class="fa fa-plus pull-right" ng-show="info_exp"></span> <span class="fa fa-minus pull-right" ng-show="!info_exp"></span></legend>
+                    <div class="panel-body" ng-show="!info_exp">
+                        <form role="form" name="form2">
                             <div class="row">
                                 <div class="form-group col-lg-6">
-                                    <label>{{ 'FECHA_EXPEDICION' | translate }}</label>
-                                    <md-datepicker ng-model="contratoRegistroHoras.FechaExpedicion" md-current-view="year" md-placeholder="Elija fecha" required></md-datepicker>
+                                    <label>{{ 'FECHA_EXPEDICION_VALIDA' | translate }}</label>
+                                    <md-datepicker ng-model="contratoRegistroHoras.FechaExpedicion" md-current-view="year" md-date-filter="validarFecha" md-placeholder="Elija fecha" fecha-valida required></md-datepicker>
                                 </div>
                                 <div class="form-group col-lg-6">
                                         <label>{{ 'NUMERO_RESOLUCION' | translate }}</label>
@@ -81,14 +66,18 @@
                                         <input type="text" class="form-control" ng-model="contratoRegistroHoras.resolucionActual.IdTipoResolucion.NombreTipoResolucion" disabled>
                                 </div>
                                 <div class="form-group col-lg-6">
-                                        <label>{{ 'NUMERO_SEMANAS' | translate }}</label>
-                                        <input type="text" class="form-control" ng-model="contratoRegistroHoras.resolucionActual.NumeroSemanas" disabled>
+                                        <label>{{ 'RESOLUCION_MODIFICADA' | translate }}</label>
+                                        <input type="text" class="form-control" ng-model="contratoRegistroHoras.numeroResolucionModificada" disabled>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
-                <div class="form-group col-lg-8 col-lg-offset-2"><input type="submit" class="form-control btn btn-success" value="{{'REALIZAR_EXPEDICION' | translate }}" ng-click="contratoRegistroHoras.realizarContrato()">
+                <center><loading load="hojasDeVidaSeleccion.estado" tam="10"></loading><center></center>
+                <div ng-hide="contratoRegistroHoras.esconderBoton" class="form-group col-lg-8 col-lg-offset-2"><input type="submit" class="form-control btn btn-success" value="{{'REALIZAR_EXPEDICION' | translate }}" ng-click="contratoRegistroHoras.realizarContrato()">
+                <div class=panel-body>
+                        <div ng-hide="contratoRegistroHoras.esconderBoton" class="form-group col-lg-6 col-lg-offset-3"><input type="submit" class="form-control btn btn-danger" value="{{'CANCELAR' | translate }}" ng-click="contratoRegistroHoras.cancelarExpedicion()">
+                </div>
                 </div>
             </div>
         </div>

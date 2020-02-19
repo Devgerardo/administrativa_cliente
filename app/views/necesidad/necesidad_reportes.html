@@ -1,0 +1,46 @@
+<div class="panel panel-primary panel-body">
+  <h2 class="page-header text-center">{{ 'REPORTES' | translate }}{{ 'NECESIDADES' | translate }}</h2>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-3">
+        <label>{{ 'REPORTE' | translate }}</label>
+        <!-- TODO: Estandarizar los reportes que se hagan y quitar hardcoding -->
+        <select class="form-control" ng-model="necesidadReportes.nombreReporte">
+          <option value="" disabled>{{"SELECCIONE_REPORTE" | translate}}</option>
+          <option value="NecesidadDependencia">{{"REPORTE_NECESIDADES" | translate}}</option>
+        </select>
+      </div>
+      <!-- TODO: Estandarizar parámetros para crear formulario según el reporte elegido -->
+      <div ng-show="necesidadReportes.nombreReporte=='NecesidadDependencia'">
+        <div class="col-md-3" >
+          <label>{{ 'DEPENDENCIA_SOLICITANTE' | translate }}</label>
+          <select class="form-control" ng-model="necesidadReportes.dependencia" required>
+            <option value="" disabled>{{'SELECCIONE' | translate }}</option>
+            <option ng-repeat="dependencia in necesidadReportes.dependencias" ng-value={{dependencia.Id}}> {{dependencia.Nombre}}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label>{{ 'VIGENCIA' | translate }}</label>
+          <select class="form-control" ng-model="necesidadReportes.vigencia" required>
+            <option value="" disabled>{{'SELECCIONE' | translate }}</option>
+            <option ng-repeat="vigencia in necesidadReportes.vigencias" ng-value={{vigencia}}> {{vigencia}}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+            <label>{{ 'NUMERO_ELABORACION_NECESIDAD' | translate }}</label>
+            <input type="tel" pattern="[0-9]*" class="form-control" ng-model="necesidadReportes.numeroElaboracion">
+          </div>
+        <div class="form-group col-lg-2 col-lg-offset-10">
+          <br>
+          <input type="submit" class="form-control btn btn-success" value="{{'GENERAR_REPORTE' | translate }}" ng-click="necesidadReportes.consultarReporte()">
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12" ng-show="necesidadReportes.generarReporte !== 0">
+        <reportes-spagobi reporte={{necesidadReportes.nombreReporte}} dependencia="necesidadReportes.dependencia" vigencia="necesidadReportes.vigencia"
+          necesidad="necesidadReportes.numeroElaboracion" boton="necesidadReportes.generarReporte"></reportes-spagobi>
+      </div>
+    </div>
+  </div>
+</div>

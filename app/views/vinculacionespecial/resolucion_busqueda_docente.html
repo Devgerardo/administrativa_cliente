@@ -1,0 +1,33 @@
+<div class="panel panel-primary panel-body">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="intro-text"> {{ 'LISTA_RESOLUCIONES' | translate }} </h4>
+          </div>
+          <div class="col-md-12" layout="column" layout-align="center center">
+            <div ng-repeat="value in listaResoluciones">
+              Resolucion # {{value}}
+            </div>
+            <div ng-hide="listaResoluciones.length">{{"NO_DOCENTES_RESOLUCION" | translate }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12" layout="row" layout-align="center center">
+        <form name="docentes">
+          <input type="text" name="buscarDocente" class="form-control ng-pristine ng-untouched ng-empty ng-invalid ng-invalid-required ng-valid-pattern"
+            style="display: inline-block; width:unset" placeholder="{{'CONSULTAR_DOCUMENTO_DOCENTE' | translate }}" ng-model="idDocente"
+            ng-pattern="/^\d+$/" required>
+          <input type="button" class="btn btn-info" value="{{'BUSCAR' | translate}}" ng-click="queryDocente(idDocente)">
+          <div style="display:block;" ng-show="docentes.buscarDocente.$dirty && docentes.buscarDocente.$invalid">{{'CAMPO_DOCENTE_INVALIDO' | translate }}</div>
+
+        </form>
+        <div ng-messages="projectForm.clientName.$error">
+          <div ng-message="required">This is required.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

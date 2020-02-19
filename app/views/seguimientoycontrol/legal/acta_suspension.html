@@ -1,0 +1,87 @@
+<br>
+<div class="panel panel-default">
+  <center><h3 class="titulo-centrado">{{'ACTA_SUSPENSION' | translate}}</h3></center>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class=" panel panel-primary" >
+          <div class="panel-heading"><center><h4><b>{{'INFORMACION' | translate}}</b></h4></center></div>
+          <div class="panel-body">
+            <div class="col-md-6"><b>{{'NUMERO_CONTRATO' | translate}}</b></div>
+            <div class="col-md-6"><p>{{sLactaSuspension.contrato_obj.id}}</p></div>
+            <div class="col-md-6"><b>{{'CONTRATANTE' | translate}}</b></div>
+            <div class="col-md-6"><p>{{'UNIVERSIDAD_NOMBRE' | translate}}</p></div>
+            <div class="col-md-6"><b>{{'CONTRATISTA' | translate}}</b></div>
+            <div class="col-md-6" ng-if="sLactaSuspension.contrato_obj.contratista_documento != null">
+              <p>
+                {{sLactaSuspension.contrato_obj.contratista_nombre}} <br>
+                <span style="color:#555; font-size:14px;">
+                  {{sLactaSuspension.contrato_obj.contratista_documento}}
+                </span>
+              </p>
+            </div>
+            <div class="col-md-6" ng-if="sLactaSuspension.contrato_obj.contratista_documento == null">
+              <p>{{'NO_REGISTRA' | translate}}</p>
+            </div>
+            <div class="col-md-6"><b>{{'OBJETO' | translate}}</b></div>
+            <div class="col-md-6" ng-if="sLactaSuspension.contrato_obj.objeto != null">
+              <p>{{sLactaSuspension.contrato_obj.objeto}}</p>
+            </div>
+            <div class="col-md-6" ng-if="sLactaSuspension.contrato_obj.objeto == null">
+              <p>{{'NO_REGISTRA' | translate}}</p>
+            </div>
+            <div class="col-md-6"><b>{{'VALOR_CONTRATO' | translate}}</b></div>
+            <div class="col-md-6"><p>{{sLactaSuspension.contrato_obj.valor | currency}}</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class=" panel panel-primary">
+          <div class="panel-heading"><center><h4><b>{{'INFORMACION_NOVEDAD' | translate}}</b></h4></center></div>
+          <div class="panel-body">
+            <form name="formSuspension">
+              <div class="form-group col-md-6">
+                <p>
+                  <b>{{'NUMERO_SOLICITUD' | translate}} *:</b>
+                </p>
+                <md-input-container style="margin:0;">
+                  <input type="number" id="n_solicitud" name="n_solicitud" required ng-model="sLactaSuspension.n_solicitud" ng-disabled="false" min="0">
+                  <div ng-messages="formSuspension.n_solicitud.$error">
+                    <div ng-message="required">{{'CAMPO_REQUERIDO' | translate}}</div>
+                  </div>
+                </md-input-container>
+              </div>
+              <div class="form-group col-md-6">
+                <p>
+                  <b>{{'PERIODO_SUSPENSION' | translate}} *:</b>
+                </p>
+                <md-input-container style="margin:0;">
+                  <input type="number" name="diff_dias" id="periodo" required ng-model="sLactaSuspension.diff_dias" ng-disabled="true" min="0">
+                  <div ng-messages="formSuspension.diff_dias.$error">
+                    <div ng-message="required">Este campo es requerido.</div>
+                  </div>
+                </md-input-container>
+              </div>
+              <div class="form-group col-md-6" >
+                <label for="fechainicio">{{'FECHA_INICIO' | translate}}:</label> <br>
+                <md-datepicker ng-model="sLactaSuspension.f_inicio"> </md-datepicker>
+              </div>
+              <div class="form-group col-md-6" >
+                <label for="fechareinicio">{{'FECHA_REINICIO' | translate}}:</label> <br>
+                <md-datepicker ng-model="sLactaSuspension.f_reinicio" md-min-date="sLactaSuspension.f_inicio"></md-datepicker>
+              </div>
+              <div class="form-group col-md-12" >
+                <label>{{'MOTIVO_SUSPENSION' | translate}}:</label>
+                <textarea class="form-control" name="motivo" style="border-radius:0;" required id="motivo" ng-model="sLactaSuspension.motivo" rows="5"></textarea>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="panel-footer">
+    <center><button class="btn btn-primary btn-lg" ng-click="sLactaSuspension.generarActa()">{{'CREAR_NOVEDAD_SUSPENSION' | translate}}</button></center>
+  </div>
+</div>

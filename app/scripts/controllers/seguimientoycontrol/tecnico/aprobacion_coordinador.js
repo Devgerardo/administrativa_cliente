@@ -18,6 +18,9 @@ angular.module('contractualClienteApp')
     self.objeto_docente = [];
     self.nombres_docentes_incumplidos = '';
     self.mes = '';
+    self.periodo = '';
+
+    self.periodos= ['2019-3','2019-1'];
 
     self.meses = [{
         Id: 1,
@@ -403,7 +406,6 @@ angular.module('contractualClienteApp')
 
       homologacionDependenciaService.get('proyecto_curricular_snies', self.coordinador.codigo_snies).
       then(function(response){
-        console.log(self.coordinador.codigo_snies);
         self.proyecto_homologado = response.data.homologacion;
 
             //adminMidRequest.get('aprobacion_pago/certificacion_visto_bueno/*/**/*').
@@ -422,11 +424,11 @@ angular.module('contractualClienteApp')
                 var mes = moment(date).format('M');
                 var anio = moment(date).format('YYYY');
                 var contenido = [];
-                //console.log(self.contenido);
-                contenido.push( {text:'EL SUSCRITO COORDINADOR DEL PROYECTO CURRICULAR DE ' + self.coordinador.nombre_proyecto_curricular + ' DE LA ' + self.facultad.Padre.Nombre + ' DE LA UNIVERSIDAD DISTRITAL FRANCISCO JOSÉ DE CALDAS', bold: true,  alignment: 'center', style:'top_space'}, '\n\n\n\n');
-                //console.log(self.contenido);
+                contenido.push( {text:'EL SUSCRITO COORDINADOR DEL PROYECTO CURRICULAR DE ' + self.coordinador.nombre_proyecto_condor + ' DE LA ' + self.facultad.Padre.Nombre + ' DE LA UNIVERSIDAD DISTRITAL FRANCISCO JOSÉ DE CALDAS', bold: true,  alignment: 'center', style:'top_space'}, '\n\n\n\n');
                 contenido.push({text:'CERTIFICA QUE: ', bold: true,  alignment: 'center', style:'top_space'}, '\n\n\n\n');
-                contenido.push({text:'Los Docentes de Vinculación Especial contratados para el periodo Académico 2018-1, del Proyecto Curricular de ' + self.coordinador.nombre_proyecto_curricular + ' cumplieron a cabalidad con las funciones docentes durante el mes de ' +self.mes.Nombre+ ' de ' +self.anio+ ' (según calendario académico).', style:'general_font'}, '\n\n')
+                contenido.push({text:'Los Docentes de Vinculación Especial contratados para el periodo Académico '+self.periodo+', del Proyecto Curricular de ' + self.coordinador.nombre_proyecto_condor + ' cumplieron a cabalidad con las funciones docentes durante el mes de ' +self.mes.Nombre+ ' de ' +self.anio+ ' (según calendario académico).', style:'general_font'}, '\n\n')
+
+
                 if(self.docentes_incumplidos){
                   contenido.push({text:'A excepción de las siguientes novedades: ', style:'general_font'}, '\n')
                   angular.forEach(self.docentes_incumplidos, function(value) {
@@ -436,7 +438,7 @@ angular.module('contractualClienteApp')
                 contenido.push('\n',{text:'La presente certificación se expide el día ' + dia + ' del mes de ' + self.meses[mes-1].Nombre + ' de ' + anio +'.',  style:'general_font'}, '\n\n\n\n\n\n');
                 contenido.push({text:'' + self.coordinador.nombre_coordinador, style:'bottom_space'});
                 contenido.push({text:'Coordinador', style:'bottom_space'});
-                contenido.push({text:'Proyecto Curricular ' + self.coordinador.nombre_proyecto_curricular, style:'bottom_space'});
+                contenido.push({text:'Proyecto Curricular ' + self.coordinador.nombre_proyecto_condor, style:'bottom_space'});
 
 
                 //Generación documento
@@ -475,12 +477,10 @@ angular.module('contractualClienteApp')
                 //Variable para obtener la fecha y hora que se genera el dcoumento
                 var date = new Date();
                 date = moment(date).format('DD_MMM_YYYY_HH_mm_ss');
-                //console.log(self.contenido);
                 pdfMake.createPdf(docDefinition).download('Certificación cumplido coordinación ' + date + '.pdf');
 
 
               });
-                //console.log(self.contenido);
 
 
                 //Sirve para descargar el documento y setearle el nombre

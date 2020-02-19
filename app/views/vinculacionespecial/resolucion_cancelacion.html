@@ -1,32 +1,63 @@
 <div class="panel panel-primary panel-body">
-	<h2 class="page-header text-center">{{ 'TITULO_VIN_DOC' | translate }} <br> {{ 'TITULO_RES' | translate }} {{resolucionCancelacion.resolucion.Numero}} <br> {{resolucionCancelacion.resolucion.Dedicacion}} </h2>
+	<h2 class="page-header text-center">{{ 'TITULO_VIN_DOC' | translate }}
+		<br> {{ 'TITULO_RES' | translate }} {{resolucionCancelacion.resolucion.Numero}}
+		<br> {{resolucionCancelacion.resolucion.Dedicacion}} </h2>
 
-		<div class="row">
-			<div class="col-md-12">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="intro-text"> {{ 'DOCENTE_VINCULADOS' | translate }} </h4>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="intro-text"> {{ 'DOCENTE_VINCULADOS' | translate }} </h4>
+				</div>
+				<div ng-show="resolucionCancelacion.carga && resolucionCancelacion.precontratados.data.length !== 0" class="panel-body">
+					<br>
+					<div ui-grid="resolucionCancelacion.precontratados" ui-grid-selection ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+					<center>
+						<loading load="resolucionCancelacion.estado" tam="5" style="position: absolute; z-index: 10; top:50%;"></loading>
+						<center>
+				</div>
+				<div ng-show="resolucionCancelacion.carga && resolucionCancelacion.precontratados.data.length === 0">
+						<div class="panel panel-warning" style="text-align: center;margin-top: 2%;">
+							<div class="panel-heading">
+								<h4 class="intro-text">{{'ADVERTENCIA' | translate }}</h4>
+							</div>
+							<div class="panel-body">
+								<h4 class="">{{'NO_DOCENTES_VINCULADOS' | translate }}</h4>
+							</div>
+						</div>
+				</div>
+				<div class="panel-heading">
+					<h4 class="intro-text"> {{ 'DOCENTES_SELECCIONADOS_REVERSAR' | translate }} </h4>
+				</div>
+				<div class="col-md-12">
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="personas in resolucionCancelacion.personasSeleccionadas">
+							<label>
+								<span class="text-info">{{$index+1}}. </span>{{personas.IdPersona}} - {{personas.NombreCompleto}} - {{personas.Proyecto}} - {{personas.NumeroHorasSemanales}}
+								Horas Semanales - </label>
+							 <select  ng-model="personas.InformacionRp" >
+								<option ng-repeat="rp in resolucionCancelacion.rps[$index]" value="{{rp}}">RP:{{rp.rp}}-Vigencia:{{rp.vigencia}}</option>
+							</select> 
+						</li>
+					</ul>
+				</div>
+				<div ng-hide="resolucionCancelacion.precontratados.data.length == 0">
+					<div class="form-group col-lg-12">
+						<div class="row">
+							<div class="col-sm-4"><label>{{ 'SEMANAS_REVERSAR' | translate }}</label></div>
+							<div class="col-sm-1"><input type="number" style="width: 4em" ng-model="resolucionCancelacion.semanasReversar" min=1 max={{resolucionCancelacion.semanasOriginales}} required></div>
+							<div class="col-sm-7"><font size="1" color="blue">({{ 'ELIJA_SEMANAS_MINIMO' | translate }} 1 {{ 'ELIJA_SEMANAS_MAXIMO' | translate }} {{resolucionCancelacion.maximoSemanas}})</font></div>
+						</div>
 					</div>
-						<br>
-						<div class="col-md-2">
-							<center><label> {{ 'SELECCIONE_PROY' | translate }}</label></center>
-						</div>
-						<div class="col-md-10">
-						<select class="form-control" ng-model="resolucionCancelacion.term" ng-change="resolucionCancelacion.get_docentes_vinculados()">
-							<option ng-selected="{{proyecto.Id == resolucionCancelacion.defaultSelectedPrecont}}" ng-repeat="proyecto in resolucionCancelacion.proyectos" value="{{proyecto.Id}}">{{proyecto.Nombre}}</option>
-						</select>
-					 </div>
-						<br>
-						<div class="panel-body">
-						<br>
-						<div ui-grid="resolucionCancelacion.precontratados" ui-grid-selection ui-grid-pagination class="grid" ng-hide="resolucionCancelacion.estado"></div>
-						<center><loading load="resolucionCancelacion.estado" tam="5"></loading><center>
-						</div>
+					<div ng-show="resolucionCancelacion.mostrar_cancelar">
 						<div class="form-group col-lg-6 col-lg-offset-3">
-								<label></label>
-								<input type="submit" class="form-control btn btn-success" value="{{'SELEC_VIN_BTN' | translate }}" ng-click="resolucionCancelacion.verCancelarInscripcionDocente()">
+							<input type="submit" class="form-control btn btn-success" value="{{'SELEC_VIN_BTN' | translate }}" ng-click="resolucionCancelacion.verCancelarInscripcionDocente()">
 						</div>
-
 					</div>
 				</div>
 			</div>
+			<div class="col-lg-6 col-lg-offset-3">
+				<input type="submit" class="form-control btn-danger" ng-click="resolucionCancelacion.volver()" value="{{'VOLVER' | translate }}">
+			</div>
+		</div>
+	</div>

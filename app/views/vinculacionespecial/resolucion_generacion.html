@@ -4,11 +4,9 @@
     <div class="col-md-2 col-md-offset-4">
       <center><label> {{ 'SELECCIONE_TIPO_RES' | translate }} </label></center>
     </div>
-    <div class="col-md-6">
-    <select ng-model="resolucionGeneracion.tipo_resolucion_elegida">
-      <option value="">{{'SELECCIONE' | translate }}</option>
-      <option value=1>{{'VINCULACION' | translate }}</option>
-      <!--option ng-repeat="tipos in resolucionGeneracion.tipos_resolucion" value="{{tipos.Id}}">{{tipos.NombreTipoResolucion}}</option-->
+    <div class="col-md-2">
+    <select class="form-control" ng-model="resolucionGeneracion.tipo_resolucion_elegida" >
+        <option ng-selected="{{tipoResolucion.Id == resolucionGeneracion.tipoResolucionDefecto}}" ng-repeat="tipoResolucion in resolucionGeneracion.tipos_resolucion" value="{{tipoResolucion.Id}}">{{tipoResolucion.NombreTipoResolucion}}</option>
     </select>
   </div>
   </div>
@@ -25,16 +23,22 @@
                 <input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionGeneracion.resolucion.numero" required>
               </div>
               <div class="form-group col-lg-6">
-                <label>{{ 'FACULTAD' | translate }}</label>
-                <select class="form-control" ng-model="resolucionGeneracion.resolucion.facultad" required>
-                  <option value="">{{'SELECCIONE' | translate }}</option>
-                  <option ng-repeat="facultad in resolucionGeneracion.facultades" value={{facultad.DependenciaId}}> {{facultad.DependenciaId.Nombre}}</option>
-                </select>
+                <div class="form-group col-lg-9">
+                  <label>{{ 'FACULTAD' | translate }}</label>
+                  <select class="form-control" ng-model="resolucionGeneracion.resolucion.facultad" required>
+                    <option value="">--{{'SELECCIONE' | translate }}--</option>
+                    <option ng-repeat="facultad in resolucionGeneracion.facultades" value={{facultad.DependenciaId}}> {{facultad.DependenciaId.Nombre}}</option>
+                  </select>
+                </div>
+                <div class="form-group col-lg-3">
+                  <label>{{ 'FIRMA_RECTOR' | translate }}</label><br>
+                  <input type="checkbox" ng-model="resolucionGeneracion.firmaRector">
+                </div>
               </div>
               <div class="form-group col-lg-6">
                 <label>{{ 'NIVEL_ACADEMICO' | translate }}</label>
                 <select class="form-control" ng-model="resolucionGeneracion.resolucion.nivelAcademico" required>
-                  <option value="">{{'SELECCIONE' | translate }}</option>
+                  <option value="">--{{'SELECCIONE' | translate }}--</option>
                   <option value="PREGRADO">PREGRADO</option>
                   <option value="POSGRADO">POSGRADO</option>
                 </select>
@@ -53,14 +57,39 @@
                 <input type="number" pattern="[0-9]*" class="form-control" ng-model="resolucionGeneracion.resolucion.numeroSemanas" required>
               </div>
               <div class="form-group col-lg-6">
-                <label>{{ 'PERIODO' | translate }}</label>
+                <label>{{ 'PERIODO_RESOLUCION' | translate }}</label>
                 <select class="form-control" ng-model="resolucionGeneracion.resolucion.Periodo" required>
                   <option value="">--{{ 'SELECCIONE' | translate }}--</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
                 </select>
-
+              </div>
+              <div class="row">
+                <div class="form-group col-md-2 col-md-offset-4">
+                  <label>{{ 'CARGA_DIFERENTE_VIGENCIA' | translate }}</label>
+                </div>
+                <div class="form-group col-md-2">
+                  <input type="checkbox" ng-model="resolucionGeneracion.mostrarCamposCarga">
+                </div>
+              </div>
+              <div class="row" ng-show="resolucionGeneracion.mostrarCamposCarga">
+                <div class="form-group col-lg-6">
+                  <label>{{ 'VIGENCIA_CARGA' | translate }}</label>
+                  <select class="form-control" ng-model="resolucionGeneracion.resolucion.VigenciaCarga" required>
+                    <option value="" disabled>--{{'SELECCIONE' | translate }}--</option>
+                    <option ng-repeat="vigencia in resolucionGeneracion.vigencias" ng-value={{vigencia}}> {{vigencia}}</option>
+                  </select>
+                </div>
+                <div class="form-group col-lg-6">
+                  <label>{{ 'PERIODO_CARGA' | translate }}</label>
+                  <select class="form-control" ng-model="resolucionGeneracion.resolucion.PeriodoCarga" required>
+                    <option value="">--{{ 'SELECCIONE' | translate }}--</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
               </div>
                 <div class="form-group col-lg-8 col-lg-offset-2">
                     <label></label>
@@ -87,7 +116,7 @@
         <input type="tel" pattern="[0-9]*" class="form-control" ng-model="resolucionGeneracion.resolucion.numero" required>
       </div>
 
-        <div class="col-md-8 col-md-offset-2">
+        <div class="col-md-12 col-md-offset-0">
           <br>
           <div class="panel panel-default">
             <div class="panel-heading">
